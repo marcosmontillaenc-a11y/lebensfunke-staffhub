@@ -870,25 +870,27 @@ function renderGatekeeperUI() {
     `;
   }).join('');
 
-  staffGrid.querySelectorAll('.gate-staff-card').forEach(card => {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', () => {
-      const empId = card.getAttribute('data-gate-emp-id');
-      const emp = AppState.employees.find(e => e.id === empId);
-      if (!emp) return;
+  staffGrid.onclick = (e) => {
+    const card = e.target.closest('.gate-staff-card');
+    if (!card) return;
+    const empId = card.getAttribute('data-gate-emp-id');
+    const emp = AppState.employees.find(el => el.id === empId);
+    if (!emp) return;
 
-      if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-        const pass = prompt('Bitte Admin-Passwort für Bella eingeben:');
-        if (pass === null) return;
-        const res = loginAsEmployee(emp.id, pass);
-        if (!res.success) {
-          showToast(res.message || 'Falsches Admin-Passwort.', 'error');
-        }
-      } else {
-        loginAsEmployee(emp.id);
+    if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
+      openLoginModal();
+      document.getElementById('tabBtnPasswordLogin')?.click();
+      const userInput = document.getElementById('loginUsername');
+      const passInput = document.getElementById('loginPassword');
+      if (userInput) userInput.value = 'bella';
+      if (passInput) {
+        passInput.value = '';
+        setTimeout(() => passInput.focus(), 150);
       }
-    });
-  });
+    } else {
+      loginAsEmployee(emp.id);
+    }
+  };
 
   if (selectUser && selectUser.options.length === 0) {
     selectUser.innerHTML = AppState.employees.map(emp => {
@@ -1838,17 +1840,18 @@ function renderLoginView() {
     staffGrid.querySelectorAll('[data-login-as-emp]').forEach(btn => {
       btn.addEventListener('click', () => {
         const empId = btn.getAttribute('data-login-as-emp');
-        const emp = AppState.employees.find(e => e.id === empId);
+        const emp = AppState.employees.find(el => el.id === empId);
         if (!emp) return;
 
         if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-          const pass = prompt('Bitte Admin-Passwort für Bella eingeben:');
-          if (pass === null) return;
-          const res = loginAsEmployee(emp.id, pass);
-          if (res.success) {
-            switchView('dashboard');
-          } else {
-            showToast(res.message || 'Falsches Admin-Passwort.', 'error');
+          openLoginModal();
+          document.getElementById('tabBtnPasswordLogin')?.click();
+          const userInput = document.getElementById('loginUsername');
+          const passInput = document.getElementById('loginPassword');
+          if (userInput) userInput.value = 'bella';
+          if (passInput) {
+            passInput.value = '';
+            setTimeout(() => passInput.focus(), 150);
           }
         } else {
           loginAsEmployee(emp.id);
@@ -3220,11 +3223,7 @@ function setupEventListeners() {
 
   // Login View Help Button
   document.getElementById('btnViewLoginHelp')?.addEventListener('click', () => {
-    alert('Zugangsinformationen Heim Egerkingen:
-
-Bitte wenden Sie sich für Ihre persönlichen Zugangsdaten an die Heimleitung oder die Administration.
-
-Das Portal ist geschützt und erfordert eine gültige Schicht-Anmeldung.');
+    alert('Zugangsinformationen Heim Egerkingen:\n\nBitte wenden Sie sich für Ihre persönlichen Zugangsdaten an die Heimleitung oder die Administration.\n\nDas Portal ist geschützt und erfordert eine gültige Schicht-Anmeldung.');
   });
 
   // Data Export & Import
