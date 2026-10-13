@@ -213,176 +213,45 @@
       "fokus": "24h-Notfallplatzierung & Übergangsplanung"
     }
   ],
-  "tasks": [
-    {
-      "id": "task-201",
-      "title": "Notfallplatzierung 24h: Zimmer für Isa vorbereiten",
-      "assignedTo": "emp-106",
-      "youthId": "jug-110",
-      "priority": "hoch",
-      "dueDate": "2026-10-14",
-      "status": "in Arbeit"
-    },
-    {
-      "id": "task-202",
-      "title": "KESB-Verlaufsbericht & Standortbestimmung für Amelie",
-      "assignedTo": "emp-102",
-      "youthId": "jug-105",
-      "priority": "hoch",
-      "dueDate": "2026-10-10",
-      "status": "offen"
-    },
-    {
-      "id": "task-203",
-      "title": "Schulstoff-Förderplan & Lernziele für Marcos ausarbeiten",
-      "assignedTo": "emp-101",
-      "youthId": "jug-101",
-      "priority": "hoch",
-      "dueDate": "2026-10-15",
-      "status": "in Arbeit"
-    },
-    {
-      "id": "task-204",
-      "title": "Dienst- & Schichtplan November für Wohngruppe finalisieren",
-      "assignedTo": "emp-104",
-      "youthId": null,
-      "priority": "mittel",
-      "dueDate": "2026-10-18",
-      "status": "offen"
-    },
-    {
-      "id": "task-205",
-      "title": "Wöchentliche Fallbesprechung: Entwicklung von Muxi leiten",
-      "assignedTo": "emp-105",
-      "youthId": "jug-103",
-      "priority": "hoch",
-      "dueDate": "2026-10-13",
-      "status": "in Arbeit"
-    },
-    {
-      "id": "task-206",
-      "title": "Medikamentenausgabe & Abendprotokollierung",
-      "assignedTo": "emp-107",
-      "youthId": null,
-      "priority": "hoch",
-      "dueDate": "2026-10-12",
-      "status": "erledigt"
-    },
-    {
-      "id": "task-207",
-      "title": "Lerncoaching & Bewerbungsdossier für Nekmal prüfen",
-      "assignedTo": "emp-112",
-      "youthId": "jug-104",
-      "priority": "mittel",
-      "dueDate": "2026-10-20",
-      "status": "offen"
-    },
-    {
-      "id": "task-208",
-      "title": "Freizeit-Aktivität & Kochen mit Zsahra begleiten",
-      "assignedTo": "emp-110",
-      "youthId": "jug-106",
-      "priority": "niedrig",
-      "dueDate": "2026-10-12",
-      "status": "erledigt"
-    },
-    {
-      "id": "task-209",
-      "title": "Bezugspersonengespräch: Zwischenbilanz Reintegration von Noelle",
-      "assignedTo": "emp-109",
-      "youthId": "jug-109",
-      "priority": "mittel",
-      "dueDate": "2026-10-16",
-      "status": "in Arbeit"
-    },
-    {
-      "id": "task-210",
-      "title": "Lehrstellen-Bewerbungsgespräch begleiten für Amir",
-      "assignedTo": "emp-103",
-      "youthId": "jug-102",
-      "priority": "mittel",
-      "dueDate": "2026-10-25",
-      "status": "offen"
-    },
-    {
-      "id": "task-301",
-      "title": "🚨 [SCHADEN] Fenstergriff Zimmer 3 klemmt (Zimmer 3 (WG 1))",
-      "assignedTo": "emp-101",
-      "youthId": "jug-103",
-      "priority": "hoch",
-      "dueDate": "2026-10-12",
-      "status": "offen",
-      "damageId": "dmg-301"
-    },
-    {
-      "id": "task-302",
-      "title": "🚨 [SCHADEN] Duschschlauch WG 2 undicht (Badezimmer WG 2)",
-      "assignedTo": "emp-101",
-      "youthId": null,
-      "priority": "mittel",
-      "dueDate": "2026-10-13",
-      "status": "in Arbeit",
-      "damageId": "dmg-302"
-    }
-  ],
-  "damages": [
-    {
-      "id": "dmg-301",
-      "title": "Fenstergriff Zimmer 3 klemmt",
-      "location": "Zimmer 3 (WG 1)",
-      "reporterName": "Laura",
-      "urgency": "hoch",
-      "youthId": "jug-103",
-      "description": "Das Fenster im Zimmer von Muxi lässt sich oben nicht mehr ankippen, der Griff blockiert. Bitte Hauswart/Schreiner beauftragen.",
-      "status": "gemeldet",
-      "createdAt": "2026-10-12T08:45:00Z",
-      "adminTaskId": "task-301",
-      "resolutionNotes": ""
-    },
-    {
-      "id": "dmg-302",
-      "title": "Duschschlauch WG 2 undicht",
-      "location": "Badezimmer WG 2",
-      "reporterName": "Kerstin",
-      "urgency": "mittel",
-      "youthId": null,
-      "description": "Der Duschschlauch im oberen Bad tropft an der Verschraubung. Neuer Schlauch liegt im Keller bereit.",
-      "status": "in Arbeit",
-      "createdAt": "2026-10-11T14:20:00Z",
-      "adminTaskId": "task-302",
-      "resolutionNotes": "Oliver schaut sich das heute Nachmittag an."
-    }
-  ],
+  "tasks": [],
+  "damages": [],
   "activityLog": [
     {
-      "id": "log-1",
-      "timestamp": "2026-10-12T07:30:00Z",
-      "action": "Heim Egerkingen initialisiert",
-      "details": "Offizielles Team (12 Mitarbeitende) und 10 Jugendliche geladen.",
-      "type": "system"
-    },
-    {
-      "id": "log-2",
-      "timestamp": "2026-10-12T08:15:00Z",
-      "action": "Schulbegleitung gestartet",
-      "details": "Bella hat den Förderplan für Marcos auf \"in Arbeit\" gesetzt.",
+      "id": "log-1791893539440-118",
+      "timestamp": "2026-10-13T12:12:19.440Z",
+      "action": "Statuswechsel",
+      "details": "Bella hat den Dienststatus auf \"Im Dienst\" gesetzt.",
       "type": "update"
     },
     {
-      "id": "log-3",
-      "timestamp": "2026-10-12T09:00:00Z",
-      "action": "Notfallplatzierung vorbereitet",
-      "details": "Kerstin bereitet Zimmer für Isa vor.",
-      "type": "create"
+      "id": "log-1791893538871-622",
+      "timestamp": "2026-10-13T12:12:18.871Z",
+      "action": "Statuswechsel",
+      "details": "Bella hat den Dienststatus auf \"Frei\" gesetzt.",
+      "type": "update"
     },
     {
-      "id": "log-4",
-      "timestamp": "2026-10-12T09:30:00Z",
-      "action": "🚨 Schadenmeldung weitergeleitet",
-      "details": "Laura hat \"Fenstergriff Zimmer 3 klemmt\" gemeldet -> Direkt als Aufgabe an Admin Bella zugewiesen.",
-      "type": "create"
+      "id": "log-1791893538360-205",
+      "timestamp": "2026-10-13T12:12:18.360Z",
+      "action": "Statuswechsel",
+      "details": "Bella hat den Dienststatus auf \"Pause\" gesetzt.",
+      "type": "update"
+    },
+    {
+      "id": "log-1791893537323-383",
+      "timestamp": "2026-10-13T12:12:17.323Z",
+      "action": "Schicht-Login",
+      "details": "Bella (Schulpersonal & App-Administratorin) hat sich angemeldet.",
+      "type": "system"
     }
   ],
-  "currentUser": null,
+  "currentUser": {
+    "id": "emp-101",
+    "username": "bella",
+    "displayName": "Bella",
+    "role": "Schulpersonal & App-Administratorin",
+    "team": "Schule & Bildung",
+    "isAdmin": true
+  },
   "theme": "dark"
 }

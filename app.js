@@ -294,176 +294,9 @@ const INITIAL_SEED_DATA = Object.freeze({
       fokus: '24h-Notfallplatzierung & Übergangsplanung'
     }
   ],
-  tasks: [
-    {
-      id: 'task-201',
-      title: 'Notfallplatzierung 24h: Zimmer für Isa vorbereiten',
-      assignedTo: 'emp-106', // Kerstin
-      youthId: 'jug-110', // Isa
-      priority: 'hoch',
-      dueDate: '2026-10-14',
-      status: 'in Arbeit'
-    },
-    {
-      id: 'task-202',
-      title: 'KESB-Verlaufsbericht & Standortbestimmung für Amelie',
-      assignedTo: 'emp-102', // Cigdem
-      youthId: 'jug-105', // Amelie
-      priority: 'hoch',
-      dueDate: '2026-10-10',
-      status: 'offen' // Überfällig ⚠️
-    },
-    {
-      id: 'task-203',
-      title: 'Schulstoff-Förderplan & Lernziele für Marcos ausarbeiten',
-      assignedTo: 'emp-101', // Bella
-      youthId: 'jug-101', // Marcos
-      priority: 'hoch',
-      dueDate: '2026-10-15',
-      status: 'in Arbeit'
-    },
-    {
-      id: 'task-204',
-      title: 'Dienst- & Schichtplan November für Wohngruppe finalisieren',
-      assignedTo: 'emp-104', // Kimete
-      youthId: null,
-      priority: 'mittel',
-      dueDate: '2026-10-18',
-      status: 'offen'
-    },
-    {
-      id: 'task-205',
-      title: 'Wöchentliche Fallbesprechung: Entwicklung von Muxi leiten',
-      assignedTo: 'emp-105', // Sandra
-      youthId: 'jug-103', // Muxi
-      priority: 'hoch',
-      dueDate: '2026-10-13',
-      status: 'in Arbeit'
-    },
-    {
-      id: 'task-206',
-      title: 'Medikamentenausgabe & Abendprotokollierung',
-      assignedTo: 'emp-107', // Oliver
-      youthId: null,
-      priority: 'hoch',
-      dueDate: '2026-10-12',
-      status: 'erledigt'
-    },
-    {
-      id: 'task-207',
-      title: 'Lerncoaching & Bewerbungsdossier für Nekmal prüfen',
-      assignedTo: 'emp-112', // Steffi
-      youthId: 'jug-104', // Nekmal
-      priority: 'mittel',
-      dueDate: '2026-10-20',
-      status: 'offen'
-    },
-    {
-      id: 'task-208',
-      title: 'Freizeit-Aktivität & Kochen mit Zsahra begleiten',
-      assignedTo: 'emp-110', // Semi
-      youthId: 'jug-106', // Zsahra
-      priority: 'niedrig',
-      dueDate: '2026-10-12',
-      status: 'erledigt'
-    },
-    {
-      id: 'task-209',
-      title: 'Bezugspersonengespräch: Zwischenbilanz Reintegration von Noelle',
-      assignedTo: 'emp-109', // Laura
-      youthId: 'jug-109', // Noelle
-      priority: 'mittel',
-      dueDate: '2026-10-16',
-      status: 'in Arbeit'
-    },
-    {
-      id: 'task-210',
-      title: 'Lehrstellen-Bewerbungsgespräch begleiten für Amir',
-      assignedTo: 'emp-103', // Serdar
-      youthId: 'jug-102', // Amir
-      priority: 'mittel',
-      dueDate: '2026-10-25',
-      status: 'offen'
-    },
-    {
-      id: 'task-301',
-      title: '🚨 [SCHADEN] Fenstergriff Zimmer 3 klemmt (Zimmer 3 (WG 1))',
-      assignedTo: 'emp-101', // Bella (Admin)
-      youthId: 'jug-103', // Muxi
-      priority: 'hoch',
-      dueDate: '2026-10-12',
-      status: 'offen',
-      damageId: 'dmg-301'
-    },
-    {
-      id: 'task-302',
-      title: '🚨 [SCHADEN] Duschschlauch WG 2 undicht (Badezimmer WG 2)',
-      assignedTo: 'emp-101', // Bella (Admin)
-      youthId: null,
-      priority: 'mittel',
-      dueDate: '2026-10-13',
-      status: 'in Arbeit',
-      damageId: 'dmg-302'
-    }
-  ],
-  damages: [
-    {
-      id: 'dmg-301',
-      title: 'Fenstergriff Zimmer 3 klemmt',
-      location: 'Zimmer 3 (WG 1)',
-      reporterName: 'Laura',
-      urgency: 'hoch',
-      youthId: 'jug-103',
-      description: 'Das Fenster im Zimmer von Muxi lässt sich oben nicht mehr ankippen, der Griff blockiert. Bitte Hauswart/Schreiner beauftragen.',
-      status: 'gemeldet',
-      createdAt: '2026-10-12T08:45:00Z',
-      adminTaskId: 'task-301',
-      resolutionNotes: ''
-    },
-    {
-      id: 'dmg-302',
-      title: 'Duschschlauch WG 2 undicht',
-      location: 'Badezimmer WG 2',
-      reporterName: 'Kerstin',
-      urgency: 'mittel',
-      youthId: null,
-      description: 'Der Duschschlauch im oberen Bad tropft an der Verschraubung. Neuer Schlauch liegt im Keller bereit.',
-      status: 'in Arbeit',
-      createdAt: '2026-10-11T14:20:00Z',
-      adminTaskId: 'task-302',
-      resolutionNotes: 'Oliver schaut sich das heute Nachmittag an.'
-    }
-  ],
-  activityLog: [
-    {
-      id: 'log-1',
-      timestamp: '2026-10-12T07:30:00Z',
-      action: 'Heim Egerkingen initialisiert',
-      details: 'Offizielles Team (12 Mitarbeitende) und 10 Jugendliche geladen.',
-      type: 'system'
-    },
-    {
-      id: 'log-2',
-      timestamp: '2026-10-12T08:15:00Z',
-      action: 'Schulbegleitung gestartet',
-      details: 'Bella hat den Förderplan für Marcos auf "in Arbeit" gesetzt.',
-      type: 'update'
-    },
-    {
-      id: 'log-3',
-      timestamp: '2026-10-12T09:00:00Z',
-      action: 'Notfallplatzierung vorbereitet',
-      details: 'Kerstin bereitet Zimmer für Isa vor.',
-      type: 'create'
-    },
-    {
-      id: 'log-4',
-      timestamp: '2026-10-12T09:30:00Z',
-      action: '🚨 Schadenmeldung weitergeleitet',
-      details: 'Laura hat "Fenstergriff Zimmer 3 klemmt" gemeldet -> Direkt als Aufgabe an Admin Bella zugewiesen.',
-      type: 'create'
-    }
-  ],
+  tasks: [],
+  damages: [],
+  activityLog: [],
   currentUser: null,
   theme: 'dark'
 });
@@ -676,7 +509,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
   if (!emp) {
     return {
       success: false,
-      message: 'Mitarbeitender nicht gefunden. Bitte w?hle ein Profil aus der Liste.'
+      message: 'Mitarbeitender nicht gefunden. Bitte wähle ein Profil aus der Liste.'
     };
   }
 
@@ -688,7 +521,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
       return {
         success: false,
         requiresPassword: true,
-        message: 'Admin-Passwort f?r Bella erforderlich.'
+        message: 'Admin-Passwort für Bella erforderlich.'
       };
     }
     if (pass !== 'bella' && pass !== 'lebensfunke' && pass.toUpperCase() !== 'LF26') {
@@ -771,8 +604,9 @@ function setMyDutyStatus(newStatus) {
   emp.status = newStatus;
   saveState();
   renderApp();
-  logActivity('Statuswechsel', `${emp.name} hat den Dienststatus auf "${newStatus}" gesetzt.`, 'update');
-  showToast(`Dienststatus f?r ${emp.name} auf "${newStatus}" aktualisiert.`, 'success');
+  const statusLabel = newStatus === 'anwesend' ? 'Im Dienst' : newStatus === 'abwesend' ? 'Pause' : 'Frei';
+  logActivity('Statuswechsel', `${emp.name} hat den Dienststatus auf "${statusLabel}" gesetzt.`, 'update');
+  showToast(`Dienststatus für ${emp.name} auf "${statusLabel}" aktualisiert.`, 'success');
 }
 
 function openLoginModal() {
@@ -793,7 +627,7 @@ function openLoginModal() {
 function assertAdmin(actionName = 'Diese Aktion') {
   if (isBellaAdmin()) return true;
 
-  showToast(`${actionName} ist gesperrt: Nur f?r Bella (Admin) freigeschaltet.`, 'warning');
+  showToast(`${actionName} ist gesperrt: Nur für Bella (Admin) freigeschaltet.`, 'warning');
   openLoginModal();
   return false;
 }
@@ -1395,12 +1229,12 @@ function renderAuthUI() {
       <div class="auth-details">
         <span class="auth-name">
           ${escapeHtml(user.displayName)}
-          ${isAdmin ? '??' : ''}
+          ${isAdmin ? ' 👑' : ''}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </span>
-        <span class="auth-role-tag">${isAdmin ? 'App Admin ? Schule' : escapeHtml(user.team)}</span>
+        <span class="auth-role-tag">${isAdmin ? 'App Admin • Schule' : escapeHtml(user.team)}</span>
       </div>
       <button id="btnAuthLogout" class="btn-logout" title="Abmelden und Portal sperren">
         Abmelden
@@ -1508,34 +1342,34 @@ function renderShiftCockpit() {
         <div class="shift-cockpit-avatar ${isAdmin ? 'admin-avatar' : ''}">${initials}</div>
         <div class="shift-cockpit-info">
           <div class="shift-cockpit-greeting">
-            <span>?? Willkommen im Dienst, <strong>${escapeHtml(user.displayName)}</strong>!</span>
-            ${isAdmin ? '<span class="badge badge-amber">?? App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
+            <span>Willkommen im Dienst, <strong>${escapeHtml(user.displayName)}</strong>!</span>
+            ${isAdmin ? '<span class="badge badge-amber">App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
           </div>
           <div class="shift-cockpit-sub">
             <span>Rolle: ${escapeHtml(user.role)}</span>
-            <span>?</span>
-            <span>?? Meine Aufgaben: <strong>${myTasks.length} offen</strong></span>
-            <span>?</span>
-            <span>?? Bezugsjugendliche: <strong>${myYouths.length}</strong> (${myYouths.map(y => escapeHtml(y.name)).join(', ') || 'Keine'})</span>
+            <span>•</span>
+            <span>Meine Aufgaben: <strong>${myTasks.length} offen</strong></span>
+            <span>•</span>
+            <span>Bezugsjugendliche: <strong>${myYouths.length}</strong> (${myYouths.map(y => escapeHtml(y.name)).join(', ') || 'Keine'})</span>
           </div>
         </div>
       </div>
 
       <div class="shift-cockpit-controls">
-        <div class="duty-status-group" title="Deinen Schicht-Status ?ndern">
+        <div class="duty-status-group" title="Deinen Schicht-Status ändern">
           <button type="button" class="btn-duty-pill ${currentStatus === 'anwesend' ? 'active-anwesend' : ''}" data-duty-change="anwesend">
-            ?? Im Dienst
+            Im Dienst
           </button>
           <button type="button" class="btn-duty-pill ${currentStatus === 'abwesend' ? 'active-abwesend' : ''}" data-duty-change="abwesend">
-            ?? Pause
+            Pause
           </button>
           <button type="button" class="btn-duty-pill ${currentStatus === 'frei' ? 'active-frei' : ''}" data-duty-change="frei">
-            ? Frei
+            Frei
           </button>
         </div>
 
-        <button type="button" id="btnCockpitSwitchProfile" class="btn btn-sm btn-outline" title="Schicht ?bergeben / Profil wechseln">
-          Schicht ?bergeben
+        <button type="button" id="btnCockpitSwitchProfile" class="btn btn-sm btn-outline" title="Schicht übergeben / Profil wechseln">
+          Schicht übergeben
         </button>
         <button type="button" id="btnCockpitLogout" class="btn btn-sm btn-outline-danger" title="Abmelden und Portal sperren">
           Abmelden
@@ -1580,22 +1414,22 @@ function renderLoginView() {
             <div class="session-details">
               <div class="session-title">
                 <span>Angemeldet als <strong>${escapeHtml(user.displayName)}</strong></span>
-                ${isAdmin ? '<span class="badge badge-amber">?? App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
+                ${isAdmin ? '<span class="badge badge-amber">App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
               </div>
               <div class="session-meta">
                 <span>Rolle: ${escapeHtml(user.role)}</span>
-                <span>?</span>
+                <span>•</span>
                 <span class="session-status-badge ${currentStatus === 'anwesend' ? 'status-pill-anwesend' : currentStatus === 'abwesend' ? 'status-pill-abwesend' : 'status-pill-frei'}">
-                  ${currentStatus === 'anwesend' ? '?? Im Dienst' : currentStatus === 'abwesend' ? '?? Pause' : '? Frei'}
+                  ${currentStatus === 'anwesend' ? 'Im Dienst' : currentStatus === 'abwesend' ? 'Pause' : 'Frei'}
                 </span>
               </div>
             </div>
           </div>
           <div class="shift-cockpit-controls">
-            <div class="duty-status-group" title="Deinen Dienststatus ?ndern">
-              <button type="button" class="btn-duty-pill ${currentStatus === 'anwesend' ? 'active-anwesend' : ''}" data-duty-change="anwesend">?? Im Dienst</button>
-              <button type="button" class="btn-duty-pill ${currentStatus === 'abwesend' ? 'active-abwesend' : ''}" data-duty-change="abwesend">?? Pause</button>
-              <button type="button" class="btn-duty-pill ${currentStatus === 'frei' ? 'active-frei' : ''}" data-duty-change="frei">? Frei</button>
+            <div class="duty-status-group" title="Deinen Dienststatus ändern">
+              <button type="button" class="btn-duty-pill ${currentStatus === 'anwesend' ? 'active-anwesend' : ''}" data-duty-change="anwesend">Im Dienst</button>
+              <button type="button" class="btn-duty-pill ${currentStatus === 'abwesend' ? 'active-abwesend' : ''}" data-duty-change="abwesend">Pause</button>
+              <button type="button" class="btn-duty-pill ${currentStatus === 'frei' ? 'active-frei' : ''}" data-duty-change="frei">Frei</button>
             </div>
             <button type="button" id="btnLoginViewLogout" class="btn btn-outline-danger">
               Abmelden & Portal sperren
@@ -1623,7 +1457,7 @@ function renderLoginView() {
             </div>
             <div>
               <div class="text-white font-semibold">Kein Mitarbeiter angemeldet</div>
-              <div class="text-muted text-sm">W?hle dein Profil unten aus, um deine Schicht zu starten.</div>
+              <div class="text-muted text-sm">Wähle dein Profil aus, um deine Schicht zu starten.</div>
             </div>
           </div>
         </div>
@@ -1635,7 +1469,7 @@ function renderLoginView() {
   if (manualSelect && manualSelect.options.length === 0) {
     manualSelect.innerHTML = AppState.employees.map(emp => {
       const isCardAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
-      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isCardAdmin ? ' ? ?? Admin' : ''})</option>`;
+      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isCardAdmin ? ' • 👑 Admin' : ''})</option>`;
     }).join('');
   }
 }

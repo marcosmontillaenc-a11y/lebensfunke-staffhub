@@ -2565,10 +2565,28 @@ ul {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.session-status-badge.status-pill-anwesend {
+  background-color: rgba(134, 239, 172, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(134, 239, 172, 0.4);
+}
+
+.session-status-badge.status-pill-abwesend {
+  background-color: rgba(253, 230, 138, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(253, 230, 138, 0.4);
+}
+
+.session-status-badge.status-pill-frei {
+  background-color: rgba(158, 176, 200, 0.2);
+  color: #cbd5e1;
+  border: 1px solid rgba(158, 176, 200, 0.4);
 }
 
 .session-empty-box {
