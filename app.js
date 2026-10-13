@@ -691,7 +691,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
         message: 'Admin-Passwort f?r Bella erforderlich.'
       };
     }
-    if (pass !== 'bella' && pass !== 'lebensfunke') {
+    if (pass !== 'bella' && pass !== 'lebensfunke' && pass.toUpperCase() !== 'LF26') {
       return {
         success: false,
         message: 'Falsches Admin-Passwort für Bella.'
@@ -709,7 +709,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
   } else {
     // Any other staff member:
     const validPass = emp.name.toLowerCase();
-    if (pass && pass !== validPass && pass !== 'lebensfunke' && pass !== '1234') {
+    if (pass && pass !== validPass && pass !== 'lebensfunke' && pass !== '1234' && pass.toUpperCase() !== 'LF26') {
       return {
         success: false,
         message: `Falsches Passwort für ${emp.name}.`
