@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Lebensfunke Heim Egerkingen — Internes Dienst- und Aufgabenportal der sozialpädagogischen Institution für Jugendliche (Kanzelstrasse 23, 4622 Egerkingen).">
+  <meta name="theme-color" content="#07111f">
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lebensfunke">
+
+  <title>Lebensfunke Egerkingen — Personal & Aufgaben Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- App Container -->
+  <div id="app" class="app-layout">
+
+    <!-- Top Navigation Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="mobileMenuToggle" class="btn-icon mobile-only" aria-label="Menü öffnen" title="Menü öffnen">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="brand" title="Sozialpädagogische Institution Lebensfunke, Kanzelstrasse 23, 4622 Egerkingen">
+          <div class="brand-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2c1.5 3 4 5 4 8a4 4 0 0 1-8 0c0-3 2.5-5 4-8z"></path>
+              <circle cx="12" cy="18" r="3"></circle>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <span class="brand-name">Lebensfunke</span>
+            <span class="brand-badge">Heim Egerkingen</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topbar Controls: Auth/Login Status, Export/Import, Install, Theme Toggle -->
+      <div class="topbar-right">
+        
+        <!-- Auth Status & Login / Logout Control -->
+        <div id="authStatusContainer" class="auth-status-container">
+          <!-- Populated dynamically via JS: Shows Bella (Admin) or Mitarbeiter Mode -->
+        </div>
+
+        <!-- Schaden melden Button (Für alle Mitarbeitenden zugänglich -> Direkt an Bella) -->
+        <button id="btnOpenDamageModal" class="btn btn-sm btn-danger-pill" title="Schaden oder Defekt im Heim direkt an Admin Bella melden">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Schaden melden</span>
+        </button>
+
+        <div class="topbar-divider"></div>
+
+        <!-- Add to Home Screen / Install Button -->
+        <button id="btnInstallPwa" class="btn btn-sm btn-outline-cyan install-btn hidden" title="Lebensfunke App zum Startbildschirm hinzufügen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="desktop-only">App installieren</span>
+        </button>
+
+        <!-- Data Export Button -->
+        <button id="btnExportJson" class="btn btn-sm btn-outline" title="Gesamten Systemzustand als JSON herunterladen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span class="desktop-only">Export JSON</span>
+        </button>
+
+        <!-- Data Import Trigger -->
+        <label for="importJsonFile" class="btn btn-sm btn-outline" title="JSON-Sicherung wiederherstellen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m8 17 4 4 4-4"></path>
+          </svg>
+          <span class="desktop-only">Import</span>
+          <input type="file" id="importJsonFile" accept=".json,application/json" class="visually-hidden">
+        </label>
+
+        <!-- Theme Toggle -->
+        <button id="btnThemeToggle" class="btn-icon theme-btn" aria-label="Design wechseln" title="Hell-/Dunkelmodus umschalten">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="icon-moon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace with Sidebar & Content -->
+    <div class="workspace-wrapper">
+      
+      <!-- Backdrop for mobile menu -->
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+      <!-- Persistent Sidebar Navigation -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-top-section">
+          <!-- Heim Egerkingen Header Card -->
+          <div class="heim-info-card">
+            <div class="heim-info-title">Heim Egerkingen</div>
+            <div class="heim-info-address">Kanzelstrasse 23 · 4622 Egerkingen</div>
+            <div class="heim-info-tags">
+              <span class="heim-tag">Notfall 24h</span>
+              <span class="heim-tag">Jugendhilfe</span>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <ul class="nav-list">
+              <li class="nav-item">
+                <a href="#dashboard" class="nav-link active" data-nav="dashboard">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="9"></rect>
+                    <rect x="14" y="3" width="7" height="5"></rect>
+                    <rect x="14" y="12" width="7" height="9"></rect>
+                    <rect x="3" y="16" width="7" height="5"></rect>
+                  </svg>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#employees" class="nav-link" data-nav="employees">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>Mitarbeitende</span>
+                  <span id="badgeNavEmployees" class="nav-badge" title="Gesamtanzahl">0</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#youths" class="nav-link" data-nav="youths">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>Jugendliche</span>
+                  <span id="badgeNavYouths" class="nav-badge nav-badge-purple" title="Betreute Jugendliche">0</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#tasks" class="nav-link" data-nav="tasks">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  <span>Aufgaben</span>
+                  <span id="badgeNavTasks" class="nav-badge nav-badge-amber" title="Offene Aufgaben">0</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#damages" class="nav-link" data-nav="damages">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span>Schadenmeldungen</span>
+                  <span id="badgeNavDamages" class="nav-badge nav-badge-red" title="Offene Schäden">0</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Sidebar Footer Info -->
+        <div class="sidebar-footer">
+          <div class="system-status-card">
+            <div class="status-indicator-dot online"></div>
+            <div class="status-text">
+              <span class="status-title">Dienstportal Aktiv</span>
+              <span id="storageInfo" class="status-sub">localStorage bereit</span>
+            </div>
+          </div>
+          <button id="btnResetSeedData" class="btn-text-danger" title="Setzt alle Daten auf den Egerkingen Demo-Zustand zurück">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2.5 2v6h6M21.5 22v-6h-6"></path>
+              <path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.3"></path>
+            </svg>
+            <span>Heim-Daten resetten</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content Container (Views switched dynamically) -->
+      <main class="main-content">
+        
+        <!-- Role Notice Banner (shown if current mode is 'mitarbeiter') -->
+        <div id="roleWarningBanner" class="role-banner hidden">
+          <div class="role-banner-content">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>
+              <strong>Mitarbeiter-Modus (Nur-Lesen):</strong> Schreibrechte sind exklusiv für <strong>Bella (Admin)</strong> freigeschaltet.
+            </span>
+            <button id="btnBannerLogin" class="btn btn-sm btn-outline-cyan" style="margin-left: auto;">
+              🔑 Als Bella anmelden
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD                          -->
+        <!-- ========================================== -->
+        <section id="view-dashboard" class="content-view active">
+          
+          <!-- Damage Alert Banner (shown when open damages exist) -->
+          <div id="dashDamageAlertBanner" class="damage-alert-banner hidden">
+            <div class="damage-alert-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div class="damage-alert-content">
+              <div class="damage-alert-title" id="dashDamageAlertTitle">Schadenmeldungen erfordern Aufmerksamkeit!</div>
+              <div class="damage-alert-desc" id="dashDamageAlertDesc">Defekte in der Liegenschaft Kanzelstrasse 23 wurden direkt an Admin Bella weitergeleitet.</div>
+            </div>
+            <button id="btnDashViewDamages" class="btn btn-sm btn-danger">
+              Zu den Schäden →
+            </button>
+          </div>
+
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Übersicht & Metriken</h1>
+              <p class="view-subtitle">Lebensfunke Heim Egerkingen · Sozialpädagogische Betreuung & Notfallplatzierungen</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnDashNewDamage" class="btn btn-outline-danger" title="Schaden oder Defekt sofort melden">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Schaden melden</span>
+              </button>
+              <button id="btnDashNewTask" class="btn btn-outline-cyan">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Neue Aufgabe</span>
+              </button>
+              <button id="btnDashNewEmployee" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <line x1="19" y1="8" x2="19" y2="14"></line>
+                  <line x1="22" y1="11" x2="16" y2="11"></line>
+                </svg>
+                <span>Mitarbeitenden anlegen</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-Time Stat Cards Grid -->
+          <div class="stat-grid">
+            <!-- Card 1: Total Employees -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Mitarbeitende Gesamt</span>
+                <div class="stat-icon-wrapper icon-cyan">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statTotalEmployees">0</div>
+              <div class="stat-footer">
+                <span id="statTeamCount" class="stat-chip chip-cyan">5 Fachbereiche</span>
+                <span class="stat-meta">Heim Egerkingen</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Present Employees -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Im Dienst / Anwesend</span>
+                <div class="stat-icon-wrapper icon-green">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statPresentEmployees">0</div>
+              <div class="stat-footer">
+                <span id="statPresenceRate" class="stat-chip chip-green">0% Quote</span>
+                <span id="statAbsenceNote" class="stat-meta">0 abwesend / frei</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Betreute Jugendliche -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Betreute Jugendliche</span>
+                <div class="stat-icon-wrapper icon-cyan">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statTotalYouths">10</div>
+              <div class="stat-footer">
+                <span id="statYouthPresence" class="stat-chip chip-cyan">8 im Heim</span>
+                <span id="statYouthStatusNote" class="stat-meta">2 extern / Schule</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Open Tasks -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Offene Aufgaben</span>
+                <div class="stat-icon-wrapper icon-amber">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statOpenTasks">0</div>
+              <div class="stat-footer">
+                <span id="statHighPriorityTasks" class="stat-chip chip-amber">0 hohe Prio</span>
+                <span id="statInProgressTasks" class="stat-meta">0 in Bearbeitung</span>
+              </div>
+            </div>
+
+            <!-- Card 5: Completed Tasks -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Erledigte Aufgaben</span>
+                <div class="stat-icon-wrapper icon-purple">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statCompletedTasks">0</div>
+              <div class="stat-footer">
+                <span id="statCompletionRate" class="stat-chip chip-purple">0% Erledigt</span>
+                <span class="stat-meta">Dokumentiert & abgeschlossen</span>
+              </div>
+            </div>
+
+            <!-- Card 6: Damages & Defects (Schadenmeldungen) -->
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-title">Schäden / Mängel</span>
+                <div class="stat-icon-wrapper icon-red">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statOpenDamages">0</div>
+              <div class="stat-footer">
+                <span id="statUrgentDamages" class="stat-chip chip-red">0 Dringend</span>
+                <span id="statResolvedDamages" class="stat-meta">0 behoben</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Panels (Task Progress Breakdown & Team Overview) -->
+          <div class="dashboard-grid">
+            <!-- Left Panel: Task Status Breakdown -->
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Aufgaben-Statusverteilung</h2>
+                  <p class="panel-subtitle">Verhältnis zwischen offenen, laufenden und fertigen Betreuungsaufgaben</p>
+                </div>
+              </div>
+
+              <!-- Multi-segment Progress Bar -->
+              <div class="progress-bar-container">
+                <div class="multi-progress-bar">
+                  <div id="barOffen" class="progress-segment segment-amber" style="width: 33%" title="Offen"></div>
+                  <div id="barInArbeit" class="progress-segment segment-cyan" style="width: 33%" title="In Arbeit"></div>
+                  <div id="barErledigt" class="progress-segment segment-green" style="width: 34%" title="Erledigt"></div>
+                </div>
+              </div>
+
+              <!-- Legend with values -->
+              <div class="progress-legend">
+                <div class="legend-item">
+                  <span class="legend-color-dot dot-amber"></span>
+                  <span class="legend-label">Offen:</span>
+                  <strong id="legendOffenVal">0</strong>
+                  <span class="legend-percent" id="legendOffenPct">(0%)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color-dot dot-cyan"></span>
+                  <span class="legend-label">In Arbeit:</span>
+                  <strong id="legendInArbeitVal">0</strong>
+                  <span class="legend-percent" id="legendInArbeitPct">(0%)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color-dot dot-green"></span>
+                  <span class="legend-label">Erledigt:</span>
+                  <strong id="legendErledigtVal">0</strong>
+                  <span class="legend-percent" id="legendErledigtPct">(0%)</span>
+                </div>
+              </div>
+
+              <!-- Team Distribution Overview -->
+              <div class="team-workload-section">
+                <h3 class="section-small-title">Fachbereiche & Teams im Heim Egerkingen</h3>
+                <div id="dashTeamCards" class="team-cards-grid">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Activity Feed -->
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Dienst- & Betreuungsprotokoll</h2>
+                  <p class="panel-subtitle">Verlaufsdokumentation und Aktionen</p>
+                </div>
+                <button id="btnClearActivityLog" class="btn-text-muted btn-sm" title="Protokoll leeren">
+                  Leeren
+                </button>
+              </div>
+
+              <div id="activityFeedList" class="activity-feed">
+                <!-- Activity entries injected via JS -->
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: EMPLOYEES (MITARBEITENDE)          -->
+        <!-- ========================================== -->
+        <section id="view-employees" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Mitarbeitende — Heim Egerkingen</h1>
+              <p class="view-subtitle">Sozialpädagogik, Notfallplatzierung, Krisenbegleitung, Hauswirtschaft und Leitung</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnOpenAddEmployee" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Mitarbeitenden hinzufügen</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="employeeSearchInput" placeholder="Suche nach Name, Funktion..." autocomplete="off">
+              <button id="btnClearEmpSearch" class="search-clear hidden" aria-label="Suche löschen">&times;</button>
+            </div>
+
+            <div class="filter-group">
+              <label for="filterEmpTeam" class="visually-hidden">Team</label>
+              <select id="filterEmpTeam" class="form-select">
+                <option value="">Alle Fachbereiche</option>
+                <option value="Heimleitung">Heimleitung</option>
+                <option value="Teamleitung">Teamleitung</option>
+                <option value="Betreuung">Betreuung</option>
+                <option value="Schule & Bildung">Schule & Bildung</option>
+                <option value="Praktikum">Praktikum</option>
+              </select>
+
+              <label for="filterEmpStatus" class="visually-hidden">Status</label>
+              <select id="filterEmpStatus" class="form-select">
+                <option value="">Alle Status</option>
+                <option value="anwesend">Anwesend (Im Dienst)</option>
+                <option value="abwesend">Abwesend</option>
+                <option value="frei">Frei</option>
+              </select>
+
+              <button id="btnResetEmpFilters" class="btn btn-sm btn-outline" title="Filter zurücksetzen">
+                Zurücksetzen
+              </button>
+            </div>
+          </div>
+
+          <!-- Employees List / Cards Grid -->
+          <div id="employeesGrid" class="employees-grid">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Empty state when no employees match filters -->
+          <div id="employeesEmptyState" class="empty-state hidden">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3>Keine Mitarbeitenden gefunden</h3>
+            <p>Passen Sie Ihre Suchkriterien oder Filter an, um Ergebnisse zu sehen.</p>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: JUGENDLICHE                        -->
+        <!-- ========================================== -->
+        <section id="view-youths" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Jugendliche — Heim Egerkingen</h1>
+              <p class="view-subtitle">Betreute Jugendliche, Bezugspersonen, Schulbegleitung und Aufenthaltsstatus</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnOpenAddYouth" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Jugendlichen erfassen</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="youthSearchInput" placeholder="Suche nach Name, Förderfokus..." autocomplete="off">
+              <button id="btnClearYouthSearch" class="search-clear hidden" aria-label="Suche löschen">&times;</button>
+            </div>
+
+            <div class="filter-group">
+              <label for="filterYouthStatus" class="visually-hidden">Status</label>
+              <select id="filterYouthStatus" class="form-select">
+                <option value="">Alle Aufenthalts-Status</option>
+                <option value="im Heim">Im Heim (Anwesend)</option>
+                <option value="Schule / Ausbildung">Schule / Ausbildung</option>
+                <option value="Urlaub / Familie">Urlaub / Familie</option>
+                <option value="Time-out">Time-out</option>
+              </select>
+
+              <label for="filterYouthBezugsperson" class="visually-hidden">Bezugsperson</label>
+              <select id="filterYouthBezugsperson" class="form-select">
+                <option value="">Alle Bezugspersonen</option>
+                <!-- Populated via JS -->
+              </select>
+
+              <button id="btnResetYouthFilters" class="btn btn-sm btn-outline" title="Filter zurücksetzen">
+                Zurücksetzen
+              </button>
+            </div>
+          </div>
+
+          <!-- Youths Grid -->
+          <div id="youthsGrid" class="youths-grid">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Empty state -->
+          <div id="youthsEmptyState" class="empty-state hidden">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3>Keine Jugendlichen gefunden</h3>
+            <p>Passen Sie die Filter an oder erfassen Sie einen neuen Jugendlichen im System.</p>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: TASKS (AUFGABEN)                   -->
+        <!-- ========================================== -->
+        <section id="view-tasks" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Betreuungs- & Dienstaufgaben</h1>
+              <p class="view-subtitle">Fallberichte, Notfallplatzierungen, Übergaben und institutionelle Aufgaben</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnOpenAddTask" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Neue Aufgabe</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="taskSearchInput" placeholder="Suche nach Aufgabentitel..." autocomplete="off">
+              <button id="btnClearTaskSearch" class="search-clear hidden" aria-label="Suche löschen">&times;</button>
+            </div>
+
+            <div class="filter-group">
+              <label for="filterTaskPriority" class="visually-hidden">Priorität</label>
+              <select id="filterTaskPriority" class="form-select">
+                <option value="">Alle Prioritäten</option>
+                <option value="hoch">Hoch (Dringend / Notfall)</option>
+                <option value="mittel">Mittel</option>
+                <option value="niedrig">Niedrig</option>
+              </select>
+
+              <label for="filterTaskStatus" class="visually-hidden">Status</label>
+              <select id="filterTaskStatus" class="form-select">
+                <option value="">Alle Status</option>
+                <option value="offen">Offen</option>
+                <option value="in Arbeit">In Arbeit</option>
+                <option value="erledigt">Erledigt</option>
+              </select>
+
+              <label for="filterTaskAssignee" class="visually-hidden">Zugewiesen an</label>
+              <select id="filterTaskAssignee" class="form-select">
+                <option value="">Alle Zuständigen</option>
+                <option value="unassigned">Nicht zugewiesen</option>
+                <!-- Populated dynamically via JS -->
+              </select>
+
+              <button id="btnResetTaskFilters" class="btn btn-sm btn-outline" title="Filter zurücksetzen">
+                Zurücksetzen
+              </button>
+            </div>
+          </div>
+
+          <!-- Tasks List Container -->
+          <div id="tasksList" class="tasks-container">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Empty state when no tasks match filters -->
+          <div id="tasksEmptyState" class="empty-state hidden">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <h3>Keine Aufgaben gefunden</h3>
+            <p>Passen Sie die Filter an oder erfassen Sie eine neue Aufgabe für das Heim-Team.</p>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: DAMAGE REPORTS (SCHADENMELDUNGEN)  -->
+        <!-- ========================================== -->
+        <section id="view-damages" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Schadenmeldungen & Liegenschafts-Mängel</h1>
+              <p class="view-subtitle">Kanzelstrasse 23, 4622 Egerkingen · Direkt an Admin Bella geleitete Reparatur- und Instandstellungsaufträge</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnOpenAddDamage" class="btn btn-danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Schaden melden</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Direct Info Banner -->
+          <div class="routing-info-card">
+            <div class="routing-info-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="routing-info-text">
+              <strong>Direkt-Routing aktiv:</strong> Jeder gemeldete Defekt wird umgehend automatisch als Aufgabe an <strong>Bella (Admin)</strong> zugewiesen, im Dienstprotokoll registriert und mit dem Standort im Heim verknüpft.
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="filter-toolbar">
+            <div class="search-input-wrapper">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="damageSearchInput" placeholder="Suche nach Schaden, Ort, Melder..." autocomplete="off">
+              <button id="btnClearDamageSearch" class="search-clear hidden" aria-label="Suche löschen">&times;</button>
+            </div>
+
+            <div class="filter-group">
+              <label for="filterDamageUrgency" class="visually-hidden">Dringlichkeit</label>
+              <select id="filterDamageUrgency" class="form-select">
+                <option value="">Alle Dringlichkeiten</option>
+                <option value="notfall">Notfall (Sofort 24h)</option>
+                <option value="hoch">Hoch (Dringend)</option>
+                <option value="mittel">Mittel (Normal)</option>
+                <option value="niedrig">Niedrig (Kosmetisch)</option>
+              </select>
+
+              <label for="filterDamageStatus" class="visually-hidden">Status</label>
+              <select id="filterDamageStatus" class="form-select">
+                <option value="">Alle Status</option>
+                <option value="gemeldet">Gemeldet (Offen)</option>
+                <option value="in Arbeit">In Bearbeitung</option>
+                <option value="behoben">Behoben / Erledigt</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Damages List Container -->
+          <div id="damagesList" class="damages-grid">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Empty state when no damages match filters -->
+          <div id="damagesEmptyState" class="empty-state hidden">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <h3>Keine Schadenmeldungen gefunden</h3>
+            <p>Es liegen keine Mängel vor oder alle Filterbedingungen wurden erfüllt.</p>
+          </div>
+
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALS & DIALOGS                           -->
+    <!-- ========================================== -->
+
+    <!-- LOGIN MODAL (Bella Admin System) -->
+    <div id="modalLogin" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalLoginTitle">
+      <div class="modal-card modal-card-sm login-modal-card">
+        <div class="modal-header">
+          <div class="login-modal-header-brand">
+            <div class="brand-logo sm">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2c1.5 3 4 5 4 8a4 4 0 0 1-8 0c0-3 2.5-5 4-8z"></path>
+                <circle cx="12" cy="18" r="3"></circle>
+              </svg>
+            </div>
+            <div>
+              <h2 id="modalLoginTitle" class="modal-title">Admin Login</h2>
+              <p class="login-sub">Lebensfunke Heim Egerkingen</p>
+            </div>
+          </div>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalLogin" aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="login-lead-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Admin-Berechtigung: Nur <strong>Bella</strong> kann sich als Administratorin anmelden und Änderungen vornehmen.</span>
+        </div>
+
+        <form id="formLogin" novalidate>
+          <div class="form-group">
+            <label for="loginUsername" class="form-label">Benutzername</label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="z. B. bella" autocomplete="username" required>
+            <span class="form-error" id="loginUsernameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword" class="form-label">Passwort</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="Passwort eingeben" autocomplete="current-password" required>
+            <span class="form-error" id="loginPasswordError"></span>
+          </div>
+
+          <div id="loginAuthError" class="login-auth-error hidden">
+            <span>Zugriff verweigert: Falscher Benutzername oder Passwort. Nur <strong>Bella</strong> hat Admin-Rechte.</span>
+          </div>
+
+          <!-- Quick Hint for testing / convenience -->
+          <div class="login-credentials-hint">
+            <div class="hint-title">Zugangsinformation:</div>
+            <div class="hint-row">Benutzer: <code>bella</code> | Passwort: <code>bella</code> (oder <code>lebensfunke</code>)</div>
+          </div>
+
+          <div class="login-modal-buttons">
+            <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-block">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              <span>Als Bella (Admin) anmelden</span>
+            </button>
+            <button type="button" id="btnContinueAsGuest" class="btn btn-outline btn-block">
+              <span>Als Mitarbeiter fortfahren (Lesemodus)</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Employee Modal (Create / Edit) -->
+    <div id="modalEmployee" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalEmployeeTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="modalEmployeeTitle" class="modal-title">Mitarbeitenden anlegen</h2>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalEmployee" aria-label="Schließen">&times;</button>
+        </div>
+
+        <form id="formEmployee" novalidate>
+          <input type="hidden" id="empId" value="">
+
+          <div class="form-group">
+            <label for="empName" class="form-label">Vollständiger Name <span class="required">*</span></label>
+            <input type="text" id="empName" class="form-control" placeholder="z. B. Silvan Meyer" required minlength="2" maxlength="60">
+            <span class="form-error" id="empNameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="empRole" class="form-label">Funktion / Fachbereich <span class="required">*</span></label>
+            <input type="text" id="empRole" class="form-control" placeholder="z. B. Sozialpädagoge HF / Bezugsperson" required minlength="2" maxlength="60">
+            <span class="form-error" id="empRoleError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="empTeam" class="form-label">Fachbereich / Team <span class="required">*</span></label>
+              <select id="empTeam" class="form-control" required>
+                <option value="">Team wählen...</option>
+                <option value="Heimleitung">Heimleitung</option>
+                <option value="Teamleitung">Teamleitung</option>
+                <option value="Betreuung">Betreuung</option>
+                <option value="Schule & Bildung">Schule & Bildung</option>
+                <option value="Praktikum">Praktikum</option>
+              </select>
+              <span class="form-error" id="empTeamError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="empStatus" class="form-label">Dienststatus <span class="required">*</span></label>
+              <select id="empStatus" class="form-control" required>
+                <option value="anwesend">Anwesend (Im Dienst)</option>
+                <option value="abwesend">Abwesend</option>
+                <option value="frei">Frei</option>
+              </select>
+              <span class="form-error" id="empStatusError"></span>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal="modalEmployee">Abbrechen</button>
+            <button type="submit" id="btnSaveEmployee" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Youth Modal (Create / Edit) -->
+    <div id="modalYouth" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalYouthTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="modalYouthTitle" class="modal-title">Jugendlichen erfassen</h2>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalYouth" aria-label="Schließen">&times;</button>
+        </div>
+
+        <form id="formYouth" novalidate>
+          <input type="hidden" id="youthId" value="">
+
+          <div class="form-group">
+            <label for="youthName" class="form-label">Name des Jugendlichen <span class="required">*</span></label>
+            <input type="text" id="youthName" class="form-control" placeholder="z. B. Marcos" required minlength="2" maxlength="60">
+            <span class="form-error" id="youthNameError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="youthStatus" class="form-label">Aufenthalts-Status <span class="required">*</span></label>
+              <select id="youthStatus" class="form-control" required>
+                <option value="im Heim" selected>Im Heim (Anwesend)</option>
+                <option value="Schule / Ausbildung">Schule / Ausbildung (Extern)</option>
+                <option value="Urlaub / Familie">Urlaub / Familie</option>
+                <option value="Time-out">Time-out / Krisenintervention</option>
+              </select>
+              <span class="form-error" id="youthStatusError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="youthRoom" class="form-label">Wohngruppe / Zimmer</label>
+              <input type="text" id="youthRoom" class="form-control" placeholder="z. B. Zimmer 2, WG 1">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="youthBezugsperson" class="form-label">Zuständige Bezugsperson <span class="required">*</span></label>
+              <select id="youthBezugsperson" class="form-control" required>
+                <option value="">Bezugsperson wählen...</option>
+                <!-- Populated via JS -->
+              </select>
+              <span class="form-error" id="youthBezugspersonError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="youthSchulbegleitung" class="form-label">Schulbegleitung</label>
+              <select id="youthSchulbegleitung" class="form-control">
+                <option value="">Keine zugewiesen</option>
+                <!-- Populated via JS: Bella, Steffi -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="youthFokus" class="form-label">Aktueller Förderfokus / Ziel</label>
+            <input type="text" id="youthFokus" class="form-control" placeholder="z. B. Schulabschluss & Lehrstellensuche, 24h Notfallplatzierung">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal="modalYouth">Abbrechen</button>
+            <button type="submit" id="btnSaveYouth" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Task Modal (Create / Edit) -->
+    <div id="modalTask" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTaskTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="modalTaskTitle" class="modal-title">Neue Aufgabe erfassen</h2>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalTask" aria-label="Schließen">&times;</button>
+        </div>
+
+        <form id="formTask" novalidate>
+          <input type="hidden" id="taskId" value="">
+
+          <div class="form-group">
+            <label for="taskTitle" class="form-label">Aufgabentitel / Massnahme <span class="required">*</span></label>
+            <input type="text" id="taskTitle" class="form-control" placeholder="z. B. KESB-Verlaufsbericht für Fall A. erstellen" required minlength="3" maxlength="120">
+            <span class="form-error" id="taskTitleError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="taskAssignee" class="form-label">Zuständige Fachperson</label>
+              <select id="taskAssignee" class="form-control">
+                <option value="">(Nicht zugewiesen)</option>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="taskYouth" class="form-label">Betrifft Jugendlichen (optional)</label>
+              <select id="taskYouth" class="form-control">
+                <option value="">(Allgemein / Kein Jugendlicher)</option>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-third">
+              <label for="taskPriority" class="form-label">Priorität <span class="required">*</span></label>
+              <select id="taskPriority" class="form-control" required>
+                <option value="niedrig">Niedrig</option>
+                <option value="mittel" selected>Mittel</option>
+                <option value="hoch">Hoch (Dringend / Notfall)</option>
+              </select>
+              <span class="form-error" id="taskPriorityError"></span>
+            </div>
+
+            <div class="form-group col-third">
+              <label for="taskDueDate" class="form-label">Fälligkeit <span class="required">*</span></label>
+              <input type="date" id="taskDueDate" class="form-control" required>
+              <span class="form-error" id="taskDueDateError"></span>
+            </div>
+
+            <div class="form-group col-third">
+              <label for="taskStatus" class="form-label">Status <span class="required">*</span></label>
+              <select id="taskStatus" class="form-control" required>
+                <option value="offen" selected>Offen</option>
+                <option value="in Arbeit">In Arbeit</option>
+                <option value="erledigt">Erledigt</option>
+              </select>
+              <span class="form-error" id="taskStatusError"></span>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal="modalTask">Abbrechen</button>
+            <button type="submit" id="btnSaveTask" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Damage Report Modal (Accessible to all staff -> Directly routes to Admin Bella) -->
+    <div id="modalDamage" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalDamageTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-header-icon-danger">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <h2 id="modalDamageTitle" class="modal-title">Schadenmeldung erfassen</h2>
+            <p class="modal-subtitle">Liegenschaft Kanzelstrasse 23 · Wird direkt an Admin Bella weitergeleitet</p>
+          </div>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalDamage" aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="modal-callout-danger">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <strong>Sofort-Weiterleitung an Admin Bella:</strong> Nach dem Absenden wird automatisch eine Aufgabe für Bella erstellt, das Dienstprotokoll aktualisiert und der Schaden auf dem Dashboard signalisiert.
+          </div>
+        </div>
+
+        <form id="formDamage" novalidate>
+          <input type="hidden" id="damageId" value="">
+
+          <div class="form-group">
+            <label for="damageTitle" class="form-label">Schaden / Defekt (Kurzbeschreibung) <span class="required">*</span></label>
+            <input type="text" id="damageTitle" class="form-control" placeholder="z. B. Fenstergriff Zimmer 3 klemmt, Duschschlauch WG 2 defekt, Heizung kalt" required minlength="3" maxlength="120">
+            <span class="form-error" id="damageTitleError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="damageLocation" class="form-label">Standort im Heim Egerkingen <span class="required">*</span></label>
+              <select id="damageLocation" class="form-control" required>
+                <option value="">(Standort auswählen)</option>
+                <optgroup label="Wohngruppe 1 (WG 1)">
+                  <option value="Zimmer 1 (WG 1)">Zimmer 1 (WG 1)</option>
+                  <option value="Zimmer 2 (WG 1)">Zimmer 2 (WG 1)</option>
+                  <option value="Zimmer 3 (WG 1)">Zimmer 3 (WG 1)</option>
+                  <option value="Zimmer 4 (WG 1)">Zimmer 4 (WG 1)</option>
+                  <option value="Küche WG 1">Küche WG 1</option>
+                  <option value="Wohnzimmer WG 1">Wohnzimmer WG 1</option>
+                  <option value="Badezimmer WG 1">Badezimmer WG 1</option>
+                </optgroup>
+                <optgroup label="Wohngruppe 2 (WG 2)">
+                  <option value="Zimmer 5 (WG 2)">Zimmer 5 (WG 2)</option>
+                  <option value="Zimmer 6 (WG 2)">Zimmer 6 (WG 2)</option>
+                  <option value="Zimmer 7 (WG 2)">Zimmer 7 (WG 2)</option>
+                  <option value="Zimmer 8 (WG 2)">Zimmer 8 (WG 2)</option>
+                  <option value="Küche WG 2">Küche WG 2</option>
+                  <option value="Wohnzimmer WG 2">Wohnzimmer WG 2</option>
+                  <option value="Badezimmer WG 2">Badezimmer WG 2</option>
+                </optgroup>
+                <optgroup label="Spezial- & Gemeinschaftsräume">
+                  <option value="Notfallzimmer 1">Notfallzimmer 1 (24h)</option>
+                  <option value="Krisenzimmer (Time-out)">Krisenzimmer (Time-out)</option>
+                  <option value="Schulzimmer">Schulzimmer</option>
+                  <option value="Büro Leitung / Personal">Büro Leitung / Personalraum</option>
+                  <option value="Garten / Aussenbereich">Garten / Aussenbereich</option>
+                  <option value="Liegenschaft Kanzelstrasse 23">Gesamte Liegenschaft Kanzelstrasse 23</option>
+                  <option value="Anderer Standort">Anderer Standort</option>
+                </optgroup>
+              </select>
+              <span class="form-error" id="damageLocationError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="damageReporter" class="form-label">Gemeldet von (Fachperson) <span class="required">*</span></label>
+              <select id="damageReporter" class="form-control" required>
+                <option value="">(Mitarbeitenden auswählen)</option>
+                <!-- Populated via JS -->
+              </select>
+              <span class="form-error" id="damageReporterError"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="damageUrgency" class="form-label">Dringlichkeit <span class="required">*</span></label>
+              <select id="damageUrgency" class="form-control" required>
+                <option value="notfall">🚨 Notfall (Sofortige Gefahr / 24h Handwerker)</option>
+                <option value="hoch" selected>⚠️ Hoch (Dringend / Einschränkung im Alltag)</option>
+                <option value="mittel">ℹ️ Mittel (Normal / Zeitnah reparieren)</option>
+                <option value="niedrig">🌱 Niedrig (Kosmetisch / Bei nächster Wartung)</option>
+              </select>
+              <span class="form-error" id="damageUrgencyError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="damageYouth" class="form-label">Betrifft Jugendlichen (optional)</label>
+              <select id="damageYouth" class="form-control">
+                <option value="">(Kein bestimmter Jugendlicher)</option>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="damageDescription" class="form-label">Genaue Beschreibung des Mangels <span class="required">*</span></label>
+            <textarea id="damageDescription" class="form-control" rows="3" placeholder="Beschreiben Sie das Problem so genau wie möglich (z. B. Tropft seit heute Morgen, Gefahr von Wasserschaden, Schloss klemmt von aussen...)" required minlength="5"></textarea>
+            <span class="form-error" id="damageDescriptionError"></span>
+          </div>
+
+          <!-- Admin Resolution Fields (Visible when Bella edits or updates status) -->
+          <div id="damageAdminSection" class="damage-admin-edit-box hidden">
+            <div class="damage-admin-header">
+              <span class="auth-role-tag">Bella Admin Bereich</span>
+              <span>Bearbeitungs- & Reparaturstatus</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="damageStatus" class="form-label">Status der Behebung</label>
+                <select id="damageStatus" class="form-control">
+                  <option value="gemeldet">Gemeldet (Offen)</option>
+                  <option value="in Arbeit">In Bearbeitung (Handwerker bestellt)</option>
+                  <option value="behoben">Behoben (Reparatur abgeschlossen)</option>
+                </select>
+              </div>
+
+              <div class="form-group col-half">
+                <label for="damageResolutionNotes" class="form-label">Massnahmen / Notiz</label>
+                <input type="text" id="damageResolutionNotes" class="form-control" placeholder="z. B. Hauswart informiert, Ersatzteil bestellt...">
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal="modalDamage">Abbrechen</button>
+            <button type="submit" id="btnSubmitDamage" class="btn btn-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"></path>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span>🚨 An Admin Bella senden</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Modal (Safety rule demonstration) -->
+    <div id="modalConfirmDelete" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalConfirmTitle">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-header">
+          <h2 id="modalConfirmTitle" class="modal-title text-danger">Löschen bestätigen</h2>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalConfirmDelete" aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p id="confirmDeleteMessage">Möchten Sie diesen Eintrag wirklich löschen?</p>
+          <div id="confirmDeleteSafetyNotice" class="delete-safety-box hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span id="confirmDeleteSafetyText">Sicherheitsregel aktiv: Zugewiesene Betreuungsaufgaben werden automatisch freigegeben (nicht gelöscht).</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modalConfirmDelete">Abbrechen</button>
+          <button type="button" id="btnConfirmDeleteAction" class="btn btn-danger">Endgültig löschen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PWA Install Guide Modal -->
+    <div id="modalPwaGuide" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalPwaGuideTitle">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="modalPwaGuideTitle" class="modal-title">Lebensfunke zum Startbildschirm hinzufügen</h2>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalPwaGuide" aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="modal-body pwa-instructions">
+          <div class="pwa-logo-preview">
+            <img src="icons/icon.svg" alt="Lebensfunke Icon" width="64" height="64">
+            <div>
+              <h3>Lebensfunke Heim Egerkingen PWA</h3>
+              <p>Schnell, offline-fähig und im Vollbild-Modus auf Smartphone oder Tablet nutzbar.</p>
+            </div>
+          </div>
+
+          <div class="instructions-steps">
+            <h4>Anleitung für Ihr Gerät:</h4>
+            <ul>
+              <li><strong>Chrome / Edge / Android:</strong> Klicken Sie oben auf <em>"App installieren"</em> oder nutzen Sie das Symbol in der Adressleiste.</li>
+              <li><strong>Apple iOS (Safari):</strong> Tippen Sie unten auf das Teilen-Symbol <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> und wählen Sie <strong>"Zum Home-Bildschirm"</strong>.</li>
+              <li><strong>Desktop:</strong> Nutzen Sie den Browser-Installationsbutton für ein eigenständiges App-Fenster.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-close-modal="modalPwaGuide">Verstanden</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  </div>
+
+  <!-- Main JavaScript App -->
+  <script src="app.js"></script>
+</body>
+</html>

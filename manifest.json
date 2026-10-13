@@ -1,0 +1,26 @@
+{
+  "name": "Lebensfunke Egerkingen — Personal & Aufgaben Dashboard",
+  "short_name": "Lebensfunke",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "description": "Dienstportal für die sozialpädagogische Institution Lebensfunke in Egerkingen. Jugendhilfe, Notfallplatzierungen und Aufgabenverwaltung.",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

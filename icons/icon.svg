@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f1b2d"/>
+      <stop offset="100%" stop-color="#07111f"/>
+    </linearGradient>
+    <linearGradient id="funkeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="50%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fde68a" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#29405f" stroke-width="4"/>
+  <circle cx="256" cy="256" r="190" fill="url(#glowGrad)"/>
+
+  <!-- Logo Shape: Lebensfunke Egerkingen Flame & Team Care Shield -->
+  <g filter="url(#shadow)">
+    <!-- Outer Protective Circle / Hexagon -->
+    <path d="M256 90 L370 156 L370 290 L256 356 L142 290 L142 156 Z" fill="none" stroke="url(#funkeGrad)" stroke-width="16" stroke-linejoin="round"/>
+    
+    <!-- Central "Lebensfunke" Spark & Flame Symbol -->
+    <path d="M256 140 C280 200 320 230 300 290 C280 340 230 340 212 290 C190 230 230 200 256 140 Z" fill="url(#funkeGrad)" opacity="0.9"/>
+    
+    <!-- Inner Core Spark -->
+    <circle cx="256" cy="265" r="24" fill="#ffffff" opacity="0.95"/>
+
+    <!-- Team Nodes (Care, Youth, Institution) -->
+    <circle cx="142" cy="156" r="14" fill="#67e8f9"/>
+    <circle cx="370" cy="156" r="14" fill="#c4b5fd"/>
+    <circle cx="370" cy="290" r="14" fill="#86efac"/>
+    <circle cx="142" cy="290" r="14" fill="#fde68a"/>
+
+    <!-- Home checkmark badge / Egerkingen symbol -->
+    <path d="M210 405 L245 440 L315 370" fill="none" stroke="#86efac" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

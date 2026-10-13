@@ -1,0 +1,356 @@
+{
+  "employees": [
+    {
+      "id": "emp-101",
+      "name": "Bella",
+      "role": "Schulpersonal & App-Administratorin",
+      "team": "Schule & Bildung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-102",
+      "name": "Cigdem",
+      "role": "Heimleitung",
+      "team": "Heimleitung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-103",
+      "name": "Serdar",
+      "role": "Heimleitung",
+      "team": "Heimleitung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-104",
+      "name": "Kimete",
+      "role": "SV / Heimleitung",
+      "team": "Heimleitung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-105",
+      "name": "Sandra",
+      "role": "Teamleitung",
+      "team": "Teamleitung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-106",
+      "name": "Kerstin",
+      "role": "Betreuungspersonal",
+      "team": "Betreuung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-107",
+      "name": "Oliver",
+      "role": "Betreuungspersonal",
+      "team": "Betreuung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-108",
+      "name": "Samia",
+      "role": "Betreuungspersonal",
+      "team": "Betreuung",
+      "status": "abwesend"
+    },
+    {
+      "id": "emp-109",
+      "name": "Laura",
+      "role": "Betreuungspersonal",
+      "team": "Betreuung",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-110",
+      "name": "Semi",
+      "role": "Praktikant",
+      "team": "Praktikum",
+      "status": "anwesend"
+    },
+    {
+      "id": "emp-111",
+      "name": "Donika",
+      "role": "Praktikantin",
+      "team": "Praktikum",
+      "status": "frei"
+    },
+    {
+      "id": "emp-112",
+      "name": "Steffi",
+      "role": "Schulpersonal",
+      "team": "Schule & Bildung",
+      "status": "frei"
+    }
+  ],
+  "youths": [
+    {
+      "id": "jug-101",
+      "name": "Marcos",
+      "status": "im Heim",
+      "room": "Zimmer 1 (WG 1)",
+      "bezugsperson": "emp-106",
+      "schulbegleitung": "emp-101",
+      "fokus": "Schulabschluss & Lehrstellensuche"
+    },
+    {
+      "id": "jug-102",
+      "name": "Amir",
+      "status": "Schule / Ausbildung",
+      "room": "Zimmer 2 (WG 1)",
+      "bezugsperson": "emp-107",
+      "schulbegleitung": "emp-112",
+      "fokus": "Praktikumsvorbereitung Logistik"
+    },
+    {
+      "id": "jug-103",
+      "name": "Muxi",
+      "status": "im Heim",
+      "room": "Zimmer 3 (WG 1)",
+      "bezugsperson": "emp-109",
+      "schulbegleitung": "emp-101",
+      "fokus": "Reintegration & Familienstärkung"
+    },
+    {
+      "id": "jug-104",
+      "name": "Nekmal",
+      "status": "Schule / Ausbildung",
+      "room": "Zimmer 4 (WG 1)",
+      "bezugsperson": "emp-108",
+      "schulbegleitung": "emp-112",
+      "fokus": "Berufsintegration & Deutschförderung"
+    },
+    {
+      "id": "jug-105",
+      "name": "Amelie",
+      "status": "im Heim",
+      "room": "Zimmer 5 (WG 2)",
+      "bezugsperson": "emp-105",
+      "schulbegleitung": "emp-101",
+      "fokus": "Tagesstruktur & Standortbestimmung KESB"
+    },
+    {
+      "id": "jug-106",
+      "name": "Zsahra",
+      "status": "im Heim",
+      "room": "Zimmer 6 (WG 2)",
+      "bezugsperson": "emp-106",
+      "schulbegleitung": "emp-112",
+      "fokus": "Berufswahl & Selbstständigkeit"
+    },
+    {
+      "id": "jug-107",
+      "name": "Jaqueline",
+      "status": "Urlaub / Familie",
+      "room": "Zimmer 7 (WG 2)",
+      "bezugsperson": "emp-109",
+      "schulbegleitung": "emp-101",
+      "fokus": "Soziales Kompetenztraining & Familie"
+    },
+    {
+      "id": "jug-108",
+      "name": "Lou",
+      "status": "im Heim",
+      "room": "Zimmer 8 (WG 2)",
+      "bezugsperson": "emp-107",
+      "schulbegleitung": "emp-112",
+      "fokus": "Kreativförderung & Beziehungsaufbau"
+    },
+    {
+      "id": "jug-109",
+      "name": "Noelle",
+      "status": "Time-out",
+      "room": "Krisenzimmer (Time-out)",
+      "bezugsperson": "emp-108",
+      "schulbegleitung": "emp-101",
+      "fokus": "Krisenintervention & Stabilisierung"
+    },
+    {
+      "id": "jug-110",
+      "name": "Isa",
+      "status": "im Heim",
+      "room": "Notfallzimmer 1",
+      "bezugsperson": "emp-105",
+      "schulbegleitung": "emp-112",
+      "fokus": "24h-Notfallplatzierung & Übergangsplanung"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-201",
+      "title": "Notfallplatzierung 24h: Zimmer für Isa vorbereiten",
+      "assignedTo": "emp-106",
+      "youthId": "jug-110",
+      "priority": "hoch",
+      "dueDate": "2026-10-14",
+      "status": "in Arbeit"
+    },
+    {
+      "id": "task-202",
+      "title": "KESB-Verlaufsbericht & Standortbestimmung für Amelie",
+      "assignedTo": "emp-102",
+      "youthId": "jug-105",
+      "priority": "hoch",
+      "dueDate": "2026-10-10",
+      "status": "offen"
+    },
+    {
+      "id": "task-203",
+      "title": "Schulstoff-Förderplan & Lernziele für Marcos ausarbeiten",
+      "assignedTo": "emp-101",
+      "youthId": "jug-101",
+      "priority": "hoch",
+      "dueDate": "2026-10-15",
+      "status": "in Arbeit"
+    },
+    {
+      "id": "task-204",
+      "title": "Dienst- & Schichtplan November für Wohngruppe finalisieren",
+      "assignedTo": "emp-104",
+      "youthId": null,
+      "priority": "mittel",
+      "dueDate": "2026-10-18",
+      "status": "offen"
+    },
+    {
+      "id": "task-205",
+      "title": "Wöchentliche Fallbesprechung: Entwicklung von Muxi leiten",
+      "assignedTo": "emp-105",
+      "youthId": "jug-103",
+      "priority": "hoch",
+      "dueDate": "2026-10-13",
+      "status": "in Arbeit"
+    },
+    {
+      "id": "task-206",
+      "title": "Medikamentenausgabe & Abendprotokollierung",
+      "assignedTo": "emp-107",
+      "youthId": null,
+      "priority": "hoch",
+      "dueDate": "2026-10-12",
+      "status": "erledigt"
+    },
+    {
+      "id": "task-207",
+      "title": "Lerncoaching & Bewerbungsdossier für Nekmal prüfen",
+      "assignedTo": "emp-112",
+      "youthId": "jug-104",
+      "priority": "mittel",
+      "dueDate": "2026-10-20",
+      "status": "offen"
+    },
+    {
+      "id": "task-208",
+      "title": "Freizeit-Aktivität & Kochen mit Zsahra begleiten",
+      "assignedTo": "emp-110",
+      "youthId": "jug-106",
+      "priority": "niedrig",
+      "dueDate": "2026-10-12",
+      "status": "erledigt"
+    },
+    {
+      "id": "task-209",
+      "title": "Bezugspersonengespräch: Zwischenbilanz Reintegration von Noelle",
+      "assignedTo": "emp-109",
+      "youthId": "jug-109",
+      "priority": "mittel",
+      "dueDate": "2026-10-16",
+      "status": "in Arbeit"
+    },
+    {
+      "id": "task-210",
+      "title": "Lehrstellen-Bewerbungsgespräch begleiten für Amir",
+      "assignedTo": "emp-103",
+      "youthId": "jug-102",
+      "priority": "mittel",
+      "dueDate": "2026-10-25",
+      "status": "offen"
+    },
+    {
+      "id": "task-301",
+      "title": "🚨 [SCHADEN] Fenstergriff Zimmer 3 klemmt (Zimmer 3 (WG 1))",
+      "assignedTo": "emp-101",
+      "youthId": "jug-103",
+      "priority": "hoch",
+      "dueDate": "2026-10-12",
+      "status": "offen",
+      "damageId": "dmg-301"
+    },
+    {
+      "id": "task-302",
+      "title": "🚨 [SCHADEN] Duschschlauch WG 2 undicht (Badezimmer WG 2)",
+      "assignedTo": "emp-101",
+      "youthId": null,
+      "priority": "mittel",
+      "dueDate": "2026-10-13",
+      "status": "in Arbeit",
+      "damageId": "dmg-302"
+    }
+  ],
+  "damages": [
+    {
+      "id": "dmg-301",
+      "title": "Fenstergriff Zimmer 3 klemmt",
+      "location": "Zimmer 3 (WG 1)",
+      "reporterName": "Laura",
+      "urgency": "hoch",
+      "youthId": "jug-103",
+      "description": "Das Fenster im Zimmer von Muxi lässt sich oben nicht mehr ankippen, der Griff blockiert. Bitte Hauswart/Schreiner beauftragen.",
+      "status": "gemeldet",
+      "createdAt": "2026-10-12T08:45:00Z",
+      "adminTaskId": "task-301",
+      "resolutionNotes": ""
+    },
+    {
+      "id": "dmg-302",
+      "title": "Duschschlauch WG 2 undicht",
+      "location": "Badezimmer WG 2",
+      "reporterName": "Kerstin",
+      "urgency": "mittel",
+      "youthId": null,
+      "description": "Der Duschschlauch im oberen Bad tropft an der Verschraubung. Neuer Schlauch liegt im Keller bereit.",
+      "status": "in Arbeit",
+      "createdAt": "2026-10-11T14:20:00Z",
+      "adminTaskId": "task-302",
+      "resolutionNotes": "Oliver schaut sich das heute Nachmittag an."
+    }
+  ],
+  "activityLog": [
+    {
+      "id": "log-1",
+      "timestamp": "2026-10-12T07:30:00Z",
+      "action": "Heim Egerkingen initialisiert",
+      "details": "Offizielles Team (12 Mitarbeitende) und 10 Jugendliche geladen.",
+      "type": "system"
+    },
+    {
+      "id": "log-2",
+      "timestamp": "2026-10-12T08:15:00Z",
+      "action": "Schulbegleitung gestartet",
+      "details": "Bella hat den Förderplan für Marcos auf \"in Arbeit\" gesetzt.",
+      "type": "update"
+    },
+    {
+      "id": "log-3",
+      "timestamp": "2026-10-12T09:00:00Z",
+      "action": "Notfallplatzierung vorbereitet",
+      "details": "Kerstin bereitet Zimmer für Isa vor.",
+      "type": "create"
+    },
+    {
+      "id": "log-4",
+      "timestamp": "2026-10-12T09:30:00Z",
+      "action": "🚨 Schadenmeldung weitergeleitet",
+      "details": "Laura hat \"Fenstergriff Zimmer 3 klemmt\" gemeldet -> Direkt als Aufgabe an Admin Bella zugewiesen.",
+      "type": "create"
+    }
+  ],
+  "currentUser": {
+    "username": "bella",
+    "displayName": "Bella",
+    "role": "admin"
+  },
+  "theme": "dark"
+}
