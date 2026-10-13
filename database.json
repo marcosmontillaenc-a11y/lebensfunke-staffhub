@@ -217,34 +217,899 @@
   "damages": [],
   "activityLog": [
     {
-      "id": "log-1791893539440-118",
-      "timestamp": "2026-10-13T12:12:19.440Z",
-      "action": "Statuswechsel",
-      "details": "Bella hat den Dienststatus auf \"Im Dienst\" gesetzt.",
-      "type": "update"
+      "id": "log-1791895097464-469",
+      "timestamp": "2026-10-13T12:38:17.464Z",
+      "action": "Schichtplan aktiviert",
+      "details": "Schichtplan KW 42 (12.10. – 18.10.2026) (51 Schichten) erfolgreich aktiviert.",
+      "type": "system"
     },
     {
-      "id": "log-1791893538871-622",
-      "timestamp": "2026-10-13T12:12:18.871Z",
-      "action": "Statuswechsel",
-      "details": "Bella hat den Dienststatus auf \"Frei\" gesetzt.",
-      "type": "update"
+      "id": "log-1791895096215-20",
+      "timestamp": "2026-10-13T12:38:16.215Z",
+      "action": "Schicht-Login",
+      "details": "Bella (Schulpersonal & App-Administratorin) hat sich angemeldet.",
+      "type": "system"
     },
     {
-      "id": "log-1791893538360-205",
-      "timestamp": "2026-10-13T12:12:18.360Z",
-      "action": "Statuswechsel",
-      "details": "Bella hat den Dienststatus auf \"Pause\" gesetzt.",
-      "type": "update"
+      "id": "log-1791895065291-375",
+      "timestamp": "2026-10-13T12:37:45.291Z",
+      "action": "Schichtplan aktiviert",
+      "details": "Schichtplan KW 42 (12.10. – 18.10.2026) (51 Schichten) erfolgreich aktiviert.",
+      "type": "system"
     },
     {
-      "id": "log-1791893537323-383",
-      "timestamp": "2026-10-13T12:12:17.323Z",
+      "id": "log-1791895064179-448",
+      "timestamp": "2026-10-13T12:37:44.179Z",
       "action": "Schicht-Login",
       "details": "Bella (Schulpersonal & App-Administratorin) hat sich angemeldet.",
       "type": "system"
     }
   ],
+  "shiftPlan": {
+    "id": "plan-1791895097403",
+    "title": "Schichtplan KW 42 (12.10. – 18.10.2026)",
+    "weekOffset": 0,
+    "kw": 42,
+    "startDate": "2026-10-12",
+    "endDate": "2026-10-18",
+    "dates": [
+      "2026-10-12",
+      "2026-10-13",
+      "2026-10-14",
+      "2026-10-15",
+      "2026-10-16",
+      "2026-10-17",
+      "2026-10-18"
+    ],
+    "entries": [
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-101",
+        "employeeName": "Bella",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-102",
+        "employeeName": "Cigdem",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "PIK",
+        "shiftLabel": "Notfall-Pikett 24h",
+        "time": "24h Bereitschaft"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-103",
+        "employeeName": "Serdar",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "TD",
+        "shiftLabel": "Tagdienst",
+        "time": "08:30 – 17:30"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-104",
+        "employeeName": "Kimete",
+        "employeeTeam": "Heimleitung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-105",
+        "employeeName": "Sandra",
+        "employeeTeam": "Teamleitung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-106",
+        "employeeName": "Kerstin",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-107",
+        "employeeName": "Oliver",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-108",
+        "employeeName": "Samia",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "FD",
+        "shiftLabel": "Frühdienst",
+        "time": "06:30 – 15:30"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "SD",
+        "shiftLabel": "Spätdienst",
+        "time": "14:00 – 22:30"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-109",
+        "employeeName": "Laura",
+        "employeeTeam": "Betreuung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "PIK",
+        "shiftLabel": "Notfall-Pikett 24h",
+        "time": "24h Bereitschaft"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-110",
+        "employeeName": "Semi",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "ND",
+        "shiftLabel": "Nachtdienst",
+        "time": "22:00 – 07:00"
+      },
+      {
+        "employeeId": "emp-111",
+        "employeeName": "Donika",
+        "employeeTeam": "Praktikum",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-12",
+        "weekday": "Mo",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-13",
+        "weekday": "Di",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-14",
+        "weekday": "Mi",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-15",
+        "weekday": "Do",
+        "shiftType": "SCH",
+        "shiftLabel": "Schule & Bildung",
+        "time": "08:00 – 16:30"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-16",
+        "weekday": "Fr",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-17",
+        "weekday": "Sa",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      },
+      {
+        "employeeId": "emp-112",
+        "employeeName": "Steffi",
+        "employeeTeam": "Schule & Bildung",
+        "date": "2026-10-18",
+        "weekday": "So",
+        "shiftType": "FREI",
+        "shiftLabel": "Frei / Ruhetag",
+        "time": "Frei"
+      }
+    ],
+    "recognizedEmployeesCount": 12,
+    "totalShiftsCount": 51,
+    "uploadedAt": "2026-10-13T12:38:17.403Z",
+    "uploadedBy": "Bella",
+    "fileName": "Test-Wochenplan.csv",
+    "fileType": "text"
+  },
   "currentUser": {
     "id": "emp-101",
     "username": "bella",

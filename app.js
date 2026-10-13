@@ -298,6 +298,7 @@ const INITIAL_SEED_DATA = Object.freeze({
   damages: [],
   activityLog: [],
   currentUser: null,
+  shiftPlan: null,
   theme: 'dark'
 });
 
@@ -311,6 +312,9 @@ let AppState = {
   tasks: [],
   damages: [],
   activityLog: [],
+  shiftPlan: null,
+  shiftViewFilter: 'all',
+  shiftViewWeekOffset: 0,
   currentUser: null,
   theme: 'dark',
   activeView: 'dashboard',
@@ -335,6 +339,7 @@ function loadState() {
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks : INITIAL_SEED_DATA.tasks,
       damages: Array.isArray(parsed.damages) ? parsed.damages : (INITIAL_SEED_DATA.damages || []),
       activityLog: Array.isArray(parsed.activityLog) ? parsed.activityLog : INITIAL_SEED_DATA.activityLog,
+      shiftPlan: (parsed.shiftPlan && typeof parsed.shiftPlan === 'object') ? parsed.shiftPlan : null,
       currentUser: (parsed.currentUser && parsed.currentUser.id) ? parsed.currentUser : null,
       theme: parsed.theme || 'dark'
     };
@@ -352,6 +357,7 @@ function saveState() {
       tasks: AppState.tasks,
       damages: AppState.damages,
       activityLog: AppState.activityLog,
+      shiftPlan: AppState.shiftPlan,
       currentUser: AppState.currentUser,
       theme: AppState.theme
     };
@@ -1147,7 +1153,7 @@ function deleteDamage(damageId) {
 // ============================================================================
 
 function switchView(viewName) {
-  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages', 'login'];
+  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages', 'shifts', 'login'];
   const target = validViews.includes(viewName) ? viewName : 'dashboard';
 
   AppState.activeView = target;
@@ -1171,6 +1177,7 @@ function switchView(viewName) {
   if (target === 'youths') renderYouths();
   if (target === 'tasks') renderTasks();
   if (target === 'damages') renderDamages();
+  if (target === 'shifts') renderShiftsView();
   if (target === 'login') renderLoginView();
 }
 
@@ -1196,6 +1203,7 @@ function renderApp() {
   renderYouths();
   renderTasks();
   renderDamages();
+  renderShiftsView();
   renderLoginView();
 }
 
@@ -1265,6 +1273,12 @@ function renderBadges() {
   if (badgeDamages) {
     const openDamagesCount = AppState.damages.filter(d => d.status !== DAMAGE_STATUSES.BEHOBEN).length;
     badgeDamages.textContent = openDamagesCount;
+  }
+  const badgeShifts = document.getElementById('badgeNavShifts');
+  if (badgeShifts) {
+    const todayStr = getTodayIsoDate();
+    const activeToday = (AppState.shiftPlan?.entries || []).filter(e => e.date === todayStr && e.shiftType !== 'FREI').length;
+    badgeShifts.textContent = activeToday;
   }
   if (badgeLogin) {
     if (AppState.currentUser && AppState.currentUser.displayName) {
@@ -1602,6 +1616,7 @@ function renderDashboard() {
   if (legErledigtVal) legErledigtVal.textContent = completedTasks;
   if (legErledigtPct) legErledigtPct.textContent = `(${pctErledigt}%)`;
 
+  renderDashboardShiftSummary();
   renderTeamDistribution();
   renderActivityLog();
 }
@@ -2216,6 +2231,818 @@ function renderDamages() {
       switchView('tasks');
     });
   });
+}
+
+// ============================================================================
+// 8.5 SCHICHTPLAN & RECOGNITION ENGINE (AUTOMATISCHER UPLOAD & ERKENNUNG)
+// ============================================================================
+
+const SHIFT_TYPES = {
+  FD: { code: 'FD', label: 'Frühdienst', time: '06:30 – 15:30', badgeClass: 'shift-badge-fd' },
+  SD: { code: 'SD', label: 'Spätdienst', time: '14:00 – 22:30', badgeClass: 'shift-badge-sd' },
+  ND: { code: 'ND', label: 'Nachtdienst', time: '22:00 – 07:00', badgeClass: 'shift-badge-nd' },
+  TD: { code: 'TD', label: 'Tagdienst', time: '08:30 – 17:30', badgeClass: 'shift-badge-td' },
+  PIK: { code: 'PIK', label: 'Notfall-Pikett 24h', time: '24h Bereitschaft', badgeClass: 'shift-badge-pik' },
+  SCH: { code: 'SCH', label: 'Schule & Bildung', time: '08:00 – 16:30', badgeClass: 'shift-badge-sch' },
+  FREI: { code: 'FREI', label: 'Frei / Ruhetag', time: 'Frei', badgeClass: 'shift-badge-frei' },
+  URLAUB: { code: 'URLAUB', label: 'Ferien', time: 'Urlaub', badgeClass: 'shift-badge-urlaub' },
+  KRANK: { code: 'KRANK', label: 'Krank / Unfall', time: 'Abwesend', badgeClass: 'shift-badge-frei' }
+};
+
+function getTodayIsoDate() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getWeekDays(weekOffset = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = now.getDate() - day + (day === 0 ? -6 : 1) + (weekOffset * 7);
+  const monday = new Date(now.getFullYear(), now.getMonth(), diffToMonday);
+  
+  const weekdaysShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const weekdaysFull = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+  
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const label = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.`;
+    days.push({
+      date: iso,
+      weekday: weekdaysShort[i],
+      weekdayFull: weekdaysFull[i],
+      label: label,
+      dayNumber: d.getDate(),
+      month: d.getMonth() + 1,
+      isToday: iso === getTodayIsoDate()
+    });
+  }
+  return days;
+}
+
+function getWeekNumber(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function matchEmployeeByName(rawStr) {
+  if (!rawStr || typeof rawStr !== 'string') return null;
+  const s = rawStr.trim().toLowerCase();
+  if (!s || s.length < 2) return null;
+
+  for (const emp of AppState.employees) {
+    const eName = emp.name.toLowerCase();
+    const eInit = emp.initials ? emp.initials.toLowerCase() : '';
+    if (s === eName || s.includes(eName) || (eInit && s === eInit)) {
+      return emp;
+    }
+  }
+
+  if (s.includes('dori')) return AppState.employees.find(e => e.name === 'Donika') || null;
+  if (s.includes('oli')) return AppState.employees.find(e => e.name === 'Oliver') || null;
+  if (s.includes('stef')) return AppState.employees.find(e => e.name === 'Steffi') || null;
+  if (s.includes('cigdem') || s.includes('çiğdem')) return AppState.employees.find(e => e.name === 'Cigdem') || null;
+
+  return null;
+}
+
+function normalizeShiftCode(rawStr) {
+  if (!rawStr) return SHIFT_TYPES.FREI;
+  const s = String(rawStr).trim().toUpperCase();
+
+  if (s === 'FD' || s === 'F' || s.includes('FRÜH') || s.includes('FRUEH') || s.includes('MORGEN')) {
+    return SHIFT_TYPES.FD;
+  }
+  if (s === 'SD' || s === 'S' || s.includes('SPÄT') || s.includes('SPAET') || s.includes('ABEND')) {
+    return SHIFT_TYPES.SD;
+  }
+  if (s === 'ND' || s === 'N' || s.includes('NACHT') || s === 'NW') {
+    return SHIFT_TYPES.ND;
+  }
+  if (s === 'TD' || s === 'T' || s.includes('TAG') || s === 'ZD') {
+    return SHIFT_TYPES.TD;
+  }
+  if (s === 'PIK' || s === 'P' || s.includes('PIKETT') || s.includes('BEREIT') || s.includes('24H')) {
+    return SHIFT_TYPES.PIK;
+  }
+  if (s === 'SCH' || s.includes('SCHUL')) {
+    return SHIFT_TYPES.SCH;
+  }
+  if (s === 'U' || s.includes('URLAUB') || s.includes('FERIEN') || s === 'FER') {
+    return SHIFT_TYPES.URLAUB;
+  }
+  if (s === 'K' || s.includes('KRANK')) {
+    return SHIFT_TYPES.KRANK;
+  }
+  if (s === 'FREI' || s === 'OFF' || s === 'X' || s === '-' || s === '/' || s.includes('RUHE') || s === '') {
+    return SHIFT_TYPES.FREI;
+  }
+
+  return { code: s.substring(0, 4), label: s, time: 'Dienst', badgeClass: 'shift-badge-td' };
+}
+
+function normalizeAndDetectShifts(matrix, weekOffset = 0) {
+  if (!Array.isArray(matrix) || matrix.length === 0) return null;
+
+  const weekDays = getWeekDays(weekOffset);
+  const detectedEntries = [];
+  const matchedEmpIds = new Set();
+
+  const cleanRows = matrix.filter(row => Array.isArray(row) && row.some(cell => String(cell).trim() !== ''));
+  if (cleanRows.length === 0) return null;
+
+  let employeeRowIndices = [];
+  cleanRows.forEach((row, rIdx) => {
+    for (let c = 0; c < Math.min(row.length, 3); c++) {
+      const emp = matchEmployeeByName(String(row[c]));
+      if (emp) {
+        employeeRowIndices.push({ rIdx, cIdx: c, emp });
+        break;
+      }
+    }
+  });
+
+  if (employeeRowIndices.length > 0) {
+    employeeRowIndices.forEach(({ rIdx, cIdx, emp }) => {
+      matchedEmpIds.add(emp.id);
+      const row = cleanRows[rIdx];
+      let dayIndex = 0;
+      for (let c = cIdx + 1; c < row.length; c++) {
+        if (dayIndex >= 7) break;
+        const cellVal = String(row[c] || '').trim();
+        const shiftObj = normalizeShiftCode(cellVal);
+        const day = weekDays[dayIndex];
+        detectedEntries.push({
+          employeeId: emp.id,
+          employeeName: emp.name,
+          employeeTeam: emp.team,
+          date: day.date,
+          weekday: day.weekday,
+          shiftType: shiftObj.code,
+          shiftLabel: shiftObj.label,
+          time: shiftObj.time
+        });
+        dayIndex++;
+      }
+      while (dayIndex < 7) {
+        const day = weekDays[dayIndex];
+        detectedEntries.push({
+          employeeId: emp.id,
+          employeeName: emp.name,
+          employeeTeam: emp.team,
+          date: day.date,
+          weekday: day.weekday,
+          shiftType: 'FREI',
+          shiftLabel: 'Frei / Ruhetag',
+          time: 'Frei'
+        });
+        dayIndex++;
+      }
+    });
+  } else {
+    const headerRow = cleanRows[0];
+    const employeeColIndices = [];
+    headerRow.forEach((cell, cIdx) => {
+      const emp = matchEmployeeByName(String(cell));
+      if (emp) {
+        employeeColIndices.push({ cIdx, emp });
+      }
+    });
+
+    if (employeeColIndices.length > 0) {
+      employeeColIndices.forEach(({ cIdx, emp }) => {
+        matchedEmpIds.add(emp.id);
+        let dayIndex = 0;
+        for (let r = 1; r < cleanRows.length; r++) {
+          if (dayIndex >= 7) break;
+          const cellVal = String(cleanRows[r][cIdx] || '').trim();
+          const shiftObj = normalizeShiftCode(cellVal);
+          const day = weekDays[dayIndex];
+          detectedEntries.push({
+            employeeId: emp.id,
+            employeeName: emp.name,
+            employeeTeam: emp.team,
+            date: day.date,
+            weekday: day.weekday,
+            shiftType: shiftObj.code,
+            shiftLabel: shiftObj.label,
+            time: shiftObj.time
+          });
+          dayIndex++;
+        }
+        while (dayIndex < 7) {
+          const day = weekDays[dayIndex];
+          detectedEntries.push({
+            employeeId: emp.id,
+            employeeName: emp.name,
+            employeeTeam: emp.team,
+            date: day.date,
+            weekday: day.weekday,
+            shiftType: 'FREI',
+            shiftLabel: 'Frei / Ruhetag',
+            time: 'Frei'
+          });
+          dayIndex++;
+        }
+      });
+    }
+  }
+
+  AppState.employees.forEach(emp => {
+    if (!matchedEmpIds.has(emp.id)) {
+      weekDays.forEach(day => {
+        detectedEntries.push({
+          employeeId: emp.id,
+          employeeName: emp.name,
+          employeeTeam: emp.team,
+          date: day.date,
+          weekday: day.weekday,
+          shiftType: 'FREI',
+          shiftLabel: 'Frei / Ruhetag',
+          time: 'Frei'
+        });
+      });
+    }
+  });
+
+  const now = new Date();
+  const kw = getWeekNumber(new Date(now.getTime() + weekOffset * 7 * 86400000));
+
+  return {
+    id: 'plan-' + Date.now(),
+    title: `Schichtplan KW ${kw} (${weekDays[0].label} – ${weekDays[6].label}${weekDays[0].date.substring(0, 4)})`,
+    weekOffset: weekOffset,
+    kw: kw,
+    startDate: weekDays[0].date,
+    endDate: weekDays[6].date,
+    dates: weekDays.map(d => d.date),
+    entries: detectedEntries,
+    recognizedEmployeesCount: matchedEmpIds.size,
+    totalShiftsCount: detectedEntries.filter(e => e.shiftType !== 'FREI').length,
+    uploadedAt: new Date().toISOString(),
+    uploadedBy: AppState.currentUser ? AppState.currentUser.displayName : 'Admin'
+  };
+}
+
+async function parseShiftPlanFile(file, weekOffset = 0) {
+  const fileName = file.name.toLowerCase();
+
+  if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+    if (typeof XLSX === 'undefined') {
+      throw new Error('Excel-Engine wird noch geladen. Bitte kurz warten.');
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const wb = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheetName = wb.SheetNames[0];
+    const matrix = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+    const plan = normalizeAndDetectShifts(matrix, weekOffset);
+    if (plan) {
+      plan.fileName = file.name;
+      plan.fileType = 'excel';
+    }
+    return plan;
+  }
+
+  if (fileName.endsWith('.csv') || fileName.endsWith('.txt')) {
+    const text = await file.text();
+    return parseTextShiftPlan(text, weekOffset, file.name);
+  }
+
+  if (fileName.endsWith('.pdf')) {
+    if (typeof pdfjsLib === 'undefined') {
+      throw new Error('PDF-Engine wird noch geladen. Bitte kurz warten.');
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const textContent = await page.getTextContent();
+      const pageStr = textContent.items.map(i => i.str).join(' ');
+      fullText += pageStr + '\n';
+    }
+    const plan = parseTextShiftPlan(fullText, weekOffset, file.name);
+    if (plan) {
+      plan.fileType = 'pdf';
+      plan.fileName = file.name;
+    }
+    return plan;
+  }
+
+  if (file.type.startsWith('image/')) {
+    const dataUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+
+    let ocrText = '';
+    if (typeof Tesseract !== 'undefined') {
+      try {
+        const ocrRes = await Tesseract.recognize(file, 'deu+eng', {
+          logger: m => {
+            const el = document.getElementById('shiftProgressSubtitle');
+            if (el && m.status === 'recognizing text') {
+              el.textContent = `KI-Texterkennung läuft: ${Math.round((m.progress || 0) * 100)}% abgeschlossen...`;
+            }
+          }
+        });
+        ocrText = ocrRes?.data?.text || '';
+      } catch (ocrErr) {
+        console.warn('OCR error:', ocrErr);
+      }
+    }
+
+    const plan = parseTextShiftPlan(ocrText || file.name, weekOffset, file.name);
+    if (plan) {
+      plan.fileType = 'image';
+      plan.fileName = file.name;
+      plan.fileDataUrl = dataUrl;
+    }
+    return plan;
+  }
+
+  throw new Error('Nicht unterstütztes Format. Bitte Excel (.xlsx), CSV, PDF oder Bild wählen.');
+}
+
+function parseTextShiftPlan(text, weekOffset = 0, fileName = 'Text-Schichtplan') {
+  if (!text) return null;
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  
+  const matrix = lines.map(line => {
+    if (line.includes('\t')) return line.split('\t').map(c => c.trim());
+    if (line.includes(';')) return line.split(';').map(c => c.trim());
+    if (line.includes(',')) return line.split(',').map(c => c.trim());
+    return line.split(/\s{2,}/).map(c => c.trim());
+  });
+
+  const plan = normalizeAndDetectShifts(matrix, weekOffset);
+  if (plan) {
+    plan.fileName = fileName;
+    plan.fileType = 'text';
+  }
+  return plan;
+}
+
+function downloadShiftPlanTemplate() {
+  if (typeof XLSX === 'undefined') {
+    showToast('Excel-Bibliothek noch nicht geladen.', 'warning');
+    return;
+  }
+
+  const weekDays = getWeekDays(AppState.shiftViewWeekOffset || 0);
+  const header = ['Mitarbeitende', 'Funktion', 'Team', ...weekDays.map(d => `${d.weekday} (${d.label})`)];
+  
+  const sampleShifts = [
+    ['Bella', 'Schulpersonal & Admin', 'Schule & Bildung', 'FD', 'FD', 'SCH', 'SCH', 'Frei', 'Frei', 'Frei'],
+    ['Cigdem', 'Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'TD', 'Frei', 'Frei'],
+    ['Serdar', 'Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'Pikett', 'Frei', 'Frei'],
+    ['Kimete', 'SV / Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'TD', 'Frei', 'Frei'],
+    ['Sandra', 'Teamleitung', 'Teamleitung', 'FD', 'FD', 'FD', 'FD', 'Frei', 'Frei', 'Frei'],
+    ['Kerstin', 'Betreuungspersonal', 'Betreuung', 'SD', 'SD', 'SD', 'Frei', 'Frei', 'FD', 'FD'],
+    ['Oliver', 'Betreuungspersonal', 'Betreuung', 'Frei', 'Frei', 'FD', 'FD', 'SD', 'SD', 'Frei'],
+    ['Samia', 'Betreuungspersonal', 'Betreuung', 'SD', 'SD', 'Frei', 'Frei', 'FD', 'FD', 'Frei'],
+    ['Laura', 'Betreuungspersonal', 'Betreuung', 'FD', 'FD', 'SD', 'SD', 'Frei', 'Frei', 'Pikett'],
+    ['Semi', 'Praktikant', 'Praktikum', 'ND', 'ND', 'ND', 'Frei', 'Frei', 'Frei', 'Frei'],
+    ['Donika', 'Praktikantin', 'Praktikum', 'Frei', 'Frei', 'Frei', 'ND', 'ND', 'ND', 'Frei'],
+    ['Steffi', 'Schulpersonal', 'Schule & Bildung', 'SCH', 'SCH', 'SCH', 'SCH', 'Frei', 'Frei', 'Frei']
+  ];
+
+  const wsData = [header, ...sampleShifts];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  
+  ws['!cols'] = [
+    { wch: 15 }, { wch: 22 }, { wch: 18 },
+    { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Schichtplan');
+  
+  const kw = getWeekNumber();
+  XLSX.writeFile(wb, `Schichtplan_Heim_Egerkingen_KW${kw}_Vorlage.xlsx`);
+  showToast('Excel-Vorlage erfolgreich heruntergeladen!', 'success');
+}
+
+function renderShiftsView() {
+  const container = document.getElementById('shiftsTableWrapper');
+  const weekTitleEl = document.getElementById('shiftsWeekTitle');
+  const originalDocCard = document.getElementById('shiftOriginalDocCard');
+  const originalDocPreview = document.getElementById('shiftOriginalDocPreview');
+  const originalDocName = document.getElementById('shiftOriginalFileName');
+
+  if (!container) return;
+
+  const weekOffset = AppState.shiftViewWeekOffset || 0;
+  const weekDays = getWeekDays(weekOffset);
+  const now = new Date();
+  const kw = getWeekNumber(new Date(now.getTime() + weekOffset * 7 * 86400000));
+
+  if (weekTitleEl) {
+    weekTitleEl.textContent = `KW ${kw} · ${weekDays[0].label} – ${weekDays[6].label}${weekDays[0].date.substring(0, 4)}`;
+  }
+
+  const filter = AppState.shiftViewFilter || 'all';
+  const displayedEmployees = AppState.employees.filter(emp => {
+    if (filter === 'all') return true;
+    return emp.team === filter;
+  });
+
+  const plan = AppState.shiftPlan;
+
+  if (!plan || !Array.isArray(plan.entries) || plan.entries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 3rem 1.5rem;">
+        <div class="empty-icon" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1">Kein aktiver Schichtplan geladen</h3>
+        <p class="text-muted text-sm max-w-md mx-auto mb-4">Lade eine Excel-Datei, ein Foto vom Dienstplan oder eine PDF-Datei hoch. Unser System erkennt die Schichten der 12 Mitarbeitenden automatisch.</p>
+        <div class="flex items-center justify-center gap-2">
+          <button type="button" class="btn btn-primary btn-open-upload-modal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Schichtplan jetzt hochladen</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-dl-template">
+            <span>Vorlage (.xlsx) herunterladen</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    container.querySelector('.btn-open-upload-modal')?.addEventListener('click', openUploadShiftPlanModal);
+    container.querySelector('.btn-dl-template')?.addEventListener('click', downloadShiftPlanTemplate);
+    if (originalDocCard) originalDocCard.classList.add('hidden');
+    return;
+  }
+
+  const loggedEmp = getLoggedInEmployee();
+
+  let tableHtml = `
+    <table class="shifts-table">
+      <thead>
+        <tr>
+          <th class="th-employee">Mitarbeitende (${displayedEmployees.length})</th>
+          ${weekDays.map(d => `
+            <th class="${d.isToday ? 'th-today' : ''}">
+              <div>${d.weekday}</div>
+              <div class="text-xs ${d.isToday ? 'text-cyan font-bold' : 'text-muted'}">${d.label}${d.isToday ? ' ★' : ''}</div>
+            </th>
+          `).join('')}
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  displayedEmployees.forEach(emp => {
+    const isMe = loggedEmp && loggedEmp.id === emp.id;
+    const initials = emp.initials || emp.name.substring(0, 2).toUpperCase();
+
+    tableHtml += `
+      <tr class="${isMe ? 'shifts-row-me' : ''}">
+        <td class="td-employee">
+          <div class="emp-cell-info">
+            <div class="auth-avatar sm ${emp.isAdmin ? 'admin-avatar' : ''}">${initials}</div>
+            <div class="emp-cell-details">
+              <span class="emp-cell-name">
+                ${escapeHtml(emp.name)}
+                ${isMe ? '<span class="badge badge-amber text-xs">Ich</span>' : ''}
+              </span>
+              <span class="emp-cell-role">${escapeHtml(emp.role)}</span>
+            </div>
+          </div>
+        </td>
+    `;
+
+    weekDays.forEach(d => {
+      const entry = (plan.entries || []).find(e => e.employeeId === emp.id && e.date === d.date);
+      const shiftType = entry ? entry.shiftType : 'FREI';
+      const shiftMeta = SHIFT_TYPES[shiftType] || { code: shiftType, label: shiftType, time: '', badgeClass: 'shift-badge-frei' };
+      const isToday = d.isToday;
+
+      tableHtml += `
+        <td class="${isToday ? 'td-today' : ''}" data-emp-id="${emp.id}" data-date="${d.date}">
+          <div class="shift-cell-badge-wrapper" title="${escapeHtml(emp.name)}: ${escapeHtml(shiftMeta.label)} (${shiftMeta.time})">
+            <span class="shift-badge ${shiftMeta.badgeClass}">${shiftMeta.code}</span>
+            <span class="shift-cell-time">${shiftMeta.time.split('–')[0].trim()}</span>
+          </div>
+        </td>
+      `;
+    });
+
+    tableHtml += `</tr>`;
+  });
+
+  tableHtml += `
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = tableHtml;
+
+  if (isBellaAdmin()) {
+    container.querySelectorAll('.shift-cell-badge-wrapper').forEach(wrapper => {
+      wrapper.addEventListener('click', () => {
+        const td = wrapper.closest('td');
+        if (!td) return;
+        const empId = td.getAttribute('data-emp-id');
+        const date = td.getAttribute('data-date');
+        quickEditShiftCell(empId, date);
+      });
+    });
+  }
+
+  if (originalDocCard) {
+    if (plan.fileDataUrl) {
+      originalDocCard.classList.remove('hidden');
+      if (originalDocName) originalDocName.textContent = plan.fileName || 'Original-Dokument';
+      if (originalDocPreview) {
+        if (plan.fileType === 'pdf') {
+          originalDocPreview.innerHTML = `<iframe src="${plan.fileDataUrl}"></iframe>`;
+        } else {
+          originalDocPreview.innerHTML = `<img src="${plan.fileDataUrl}" alt="Original Schichtplan">`;
+        }
+      }
+    } else {
+      originalDocCard.classList.add('hidden');
+    }
+  }
+}
+
+function renderDashboardShiftSummary() {
+  const container = document.getElementById('dashTodayShiftsGrid');
+  const dateBadge = document.getElementById('dashScheduleDateBadge');
+  if (!container) return;
+
+  const todayStr = getTodayIsoDate();
+  const now = new Date();
+  const weekdaysFull = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  const monthsFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  
+  if (dateBadge) {
+    dateBadge.textContent = `${weekdaysFull[now.getDay()]}, ${now.getDate()}. ${monthsFull[now.getMonth()]} ${now.getFullYear()}`;
+  }
+
+  const plan = AppState.shiftPlan;
+  if (!plan || !Array.isArray(plan.entries) || plan.entries.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-4 text-muted text-sm">
+        <span>Noch kein Schichtplan geladen. Klicke oben auf <strong>"Plan hochladen"</strong>, um den Dienstplan der Wohngruppe zu aktivieren.</span>
+      </div>
+    `;
+    return;
+  }
+
+  const todayEntries = plan.entries.filter(e => e.date === todayStr);
+
+  const shiftCategories = [
+    { type: 'FD', title: 'Frühdienst (FD)', class: 'col-fd', time: '06:30 – 15:30' },
+    { type: 'SD', title: 'Spätdienst (SD)', class: 'col-sd', time: '14:00 – 22:30' },
+    { type: 'ND', title: 'Nachtdienst (ND)', class: 'col-nd', time: '22:00 – 07:00' },
+    { type: 'TD', title: 'Tagdienst (TD)', class: 'col-td', time: '08:30 – 17:30' },
+    { type: 'PIK', title: 'Notfall-Pikett (24h)', class: 'col-pik', time: 'Bereitschaft' },
+    { type: 'FREI', title: 'Frei / Ruhetag', class: 'col-frei', time: 'Frei' }
+  ];
+
+  let gridHtml = '';
+  shiftCategories.forEach(cat => {
+    let staffInShift = todayEntries.filter(e => e.shiftType === cat.type);
+    if (cat.type === 'FREI') {
+      const otherOff = todayEntries.filter(e => e.shiftType === 'URLAUB' || e.shiftType === 'KRANK');
+      staffInShift = [...staffInShift, ...otherOff];
+    }
+
+    if (staffInShift.length > 0) {
+      gridHtml += `
+        <div class="dash-shift-column">
+          <div class="dash-shift-col-header ${cat.class}">
+            <span>${cat.title}</span>
+            <span class="badge badge-sm">${staffInShift.length}</span>
+          </div>
+          <div class="dash-shift-staff-list">
+            ${staffInShift.map(entry => {
+              const emp = AppState.employees.find(e => e.id === entry.employeeId);
+              const initials = emp?.initials || entry.employeeName.substring(0, 2).toUpperCase();
+              return `
+                <div class="dash-shift-staff-item">
+                  <div class="dash-shift-staff-avatar">${initials}</div>
+                  <div class="flex-1 font-semibold">${escapeHtml(entry.employeeName)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  if (!gridHtml) {
+    gridHtml = `
+      <div class="col-span-full text-center py-3 text-muted text-sm">
+        <span>Für den heutigen Tag (${todayStr}) wurden im aktiven Plan noch keine Schichten hinterlegt.</span>
+      </div>
+    `;
+  }
+
+  container.innerHTML = gridHtml;
+}
+
+function quickEditShiftCell(empId, date) {
+  if (!assertAdmin('Schicht anpassen')) return;
+  const plan = AppState.shiftPlan;
+  if (!plan) return;
+
+  const emp = AppState.employees.find(e => e.id === empId);
+  if (!emp) return;
+
+  const shiftOptions = ['FD', 'SD', 'ND', 'TD', 'PIK', 'SCH', 'FREI', 'URLAUB'];
+  const current = (plan.entries || []).find(e => e.employeeId === empId && e.date === date);
+  const curType = current ? current.shiftType : 'FREI';
+  
+  const nextIdx = (shiftOptions.indexOf(curType) + 1) % shiftOptions.length;
+  const nextType = shiftOptions[nextIdx];
+  const nextMeta = SHIFT_TYPES[nextType];
+
+  if (current) {
+    current.shiftType = nextMeta.code;
+    current.shiftLabel = nextMeta.label;
+    current.time = nextMeta.time;
+  } else {
+    plan.entries.push({
+      employeeId: emp.id,
+      employeeName: emp.name,
+      employeeTeam: emp.team,
+      date: date,
+      weekday: '',
+      shiftType: nextMeta.code,
+      shiftLabel: nextMeta.label,
+      time: nextMeta.time
+    });
+  }
+
+  saveState();
+  renderApp();
+  showToast(`${emp.name} am ${date}: ${nextMeta.label} (${nextMeta.code})`, 'info');
+}
+
+let pendingRecognizedPlan = null;
+
+function openUploadShiftPlanModal() {
+  if (!assertAdmin('Schichtplan hochladen')) return;
+  const modal = document.getElementById('modalUploadShiftPlan');
+  const progressBox = document.getElementById('shiftParsingProgress');
+  const previewCard = document.getElementById('shiftRecognitionCard');
+  const errorBox = document.getElementById('shiftUploadError');
+  const btnApply = document.getElementById('btnApplyShiftPlan');
+  const fileInput = document.getElementById('shiftFileInput');
+  const pasteInput = document.getElementById('shiftPasteInput');
+  const weekSelect = document.getElementById('shiftTargetWeekSelect');
+
+  pendingRecognizedPlan = null;
+  if (fileInput) fileInput.value = '';
+  if (pasteInput) pasteInput.value = '';
+  if (progressBox) progressBox.classList.add('hidden');
+  if (previewCard) previewCard.classList.add('hidden');
+  if (errorBox) errorBox.classList.add('hidden');
+  if (btnApply) btnApply.disabled = true;
+
+  if (weekSelect) {
+    weekSelect.innerHTML = [
+      { offset: 0, label: `Aktuelle Woche (KW ${getWeekNumber()})` },
+      { offset: 1, label: `Nächste Woche (KW ${getWeekNumber(new Date(Date.now() + 7 * 86400000))})` },
+      { offset: 2, label: `Übernachste Woche (KW ${getWeekNumber(new Date(Date.now() + 14 * 86400000))})` },
+      { offset: -1, label: `Vorherige Woche (KW ${getWeekNumber(new Date(Date.now() - 7 * 86400000))})` }
+    ].map(w => `<option value="${w.offset}">${w.label}</option>`).join('');
+  }
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+async function processShiftPlanFile(file) {
+  const progressBox = document.getElementById('shiftParsingProgress');
+  const previewCard = document.getElementById('shiftRecognitionCard');
+  const errorBox = document.getElementById('shiftUploadError');
+  const btnApply = document.getElementById('btnApplyShiftPlan');
+  const weekSelect = document.getElementById('shiftTargetWeekSelect');
+
+  const offset = parseInt(weekSelect ? weekSelect.value : '0', 10) || 0;
+
+  if (progressBox) progressBox.classList.remove('hidden');
+  if (previewCard) previewCard.classList.add('hidden');
+  if (errorBox) errorBox.classList.add('hidden');
+
+  try {
+    const plan = await parseShiftPlanFile(file, offset);
+    if (!plan) {
+      throw new Error('Es konnten keine gültigen Schichtdaten in dieser Datei gefunden werden.');
+    }
+
+    pendingRecognizedPlan = plan;
+    showRecognitionPreview(plan);
+
+    if (btnApply) btnApply.disabled = false;
+    showToast(`Schichtplan erkannt: ${plan.recognizedEmployeesCount} Mitarbeitende zugeordnet!`, 'success');
+  } catch (err) {
+    console.error('Shift plan parse error:', err);
+    if (errorBox) {
+      const errText = document.getElementById('shiftUploadErrorText');
+      if (errText) errText.textContent = err.message || 'Fehler beim Lesen der Datei.';
+      errorBox.classList.remove('hidden');
+    }
+    showToast('Fehler beim Erkennen: ' + err.message, 'error');
+  } finally {
+    if (progressBox) progressBox.classList.add('hidden');
+  }
+}
+
+function showRecognitionPreview(plan) {
+  const card = document.getElementById('shiftRecognitionCard');
+  const summaryEl = document.getElementById('shiftRecognitionSummary');
+  const previewContainer = document.getElementById('shiftRecognitionPreview');
+
+  if (!card || !previewContainer) return;
+
+  if (summaryEl) {
+    summaryEl.textContent = `✨ ${plan.totalShiftsCount} Schichten für ${plan.recognizedEmployeesCount} von 12 Mitarbeitenden erkannt!`;
+  }
+
+  const weekDays = getWeekDays(plan.weekOffset || 0);
+
+  let previewHtml = `
+    <table class="shifts-table" style="min-width: 600px; font-size: 0.775rem;">
+      <thead>
+        <tr>
+          <th style="text-align: left;">Mitarbeitende</th>
+          ${weekDays.map(d => `<th>${d.weekday} (${d.label})</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  AppState.employees.forEach(emp => {
+    previewHtml += `
+      <tr>
+        <td style="text-align: left; font-weight: 600;">${escapeHtml(emp.name)}</td>
+    `;
+    weekDays.forEach(d => {
+      const entry = (plan.entries || []).find(e => e.employeeId === emp.id && e.date === d.date);
+      const code = entry ? entry.shiftType : 'FREI';
+      const meta = SHIFT_TYPES[code] || SHIFT_TYPES.FREI;
+      previewHtml += `
+        <td><span class="shift-badge ${meta.badgeClass}">${meta.code}</span></td>
+      `;
+    });
+    previewHtml += `</tr>`;
+  });
+
+  previewHtml += `</tbody></table>`;
+  previewContainer.innerHTML = previewHtml;
+  card.classList.remove('hidden');
+}
+
+function applyRecognizedShiftPlan() {
+  if (!pendingRecognizedPlan) return;
+  
+  AppState.shiftPlan = pendingRecognizedPlan;
+  AppState.shiftViewWeekOffset = pendingRecognizedPlan.weekOffset || 0;
+  
+  saveState();
+  renderApp();
+  
+  logActivity('Schichtplan aktiviert', `${pendingRecognizedPlan.title} (${pendingRecognizedPlan.totalShiftsCount} Schichten) erfolgreich aktiviert.`, 'system');
+  showToast('Schichtplan erfolgreich aktiviert und synchronisiert!', 'success');
+
+  const modal = document.getElementById('modalUploadShiftPlan');
+  if (modal) modal.classList.add('hidden');
+
+  switchView('shifts');
+}
+
+function clearActiveShiftPlan() {
+  if (!assertAdmin('Schichtplan löschen')) return;
+  if (!confirm('Möchtest du den aktuellen Schichtplan wirklich löschen?')) return;
+
+  AppState.shiftPlan = null;
+  saveState();
+  renderApp();
+  logActivity('Schichtplan gelöscht', 'Der aktive Schichtplan wurde vom Administrator entfernt.', 'system');
+  showToast('Schichtplan wurde geleert.', 'info');
 }
 
 // ============================================================================
@@ -3259,6 +4086,116 @@ function setupEventListeners() {
     closeModal('modalConfirmDelete');
   });
 
+  // ==========================================
+  // Schichtplan Event Listeners & Upload Drag&Drop
+  // ==========================================
+  document.getElementById('btnOpenUploadShiftModal')?.addEventListener('click', openUploadShiftPlanModal);
+  document.getElementById('btnDashUploadShiftPlan')?.addEventListener('click', openUploadShiftPlanModal);
+  document.getElementById('btnDashGoToShifts')?.addEventListener('click', () => switchView('shifts'));
+  document.getElementById('btnDownloadShiftTemplate')?.addEventListener('click', downloadShiftPlanTemplate);
+  document.getElementById('btnClearShiftPlan')?.addEventListener('click', clearActiveShiftPlan);
+
+  // Week Navigation
+  document.getElementById('btnShiftPrevWeek')?.addEventListener('click', () => {
+    AppState.shiftViewWeekOffset = (AppState.shiftViewWeekOffset || 0) - 1;
+    renderShiftsView();
+  });
+  document.getElementById('btnShiftCurrentWeek')?.addEventListener('click', () => {
+    AppState.shiftViewWeekOffset = 0;
+    renderShiftsView();
+  });
+  document.getElementById('btnShiftNextWeek')?.addEventListener('click', () => {
+    AppState.shiftViewWeekOffset = (AppState.shiftViewWeekOffset || 0) + 1;
+    renderShiftsView();
+  });
+
+  // Shifts Team Filter Tabs
+  document.querySelectorAll('[data-shift-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-shift-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      AppState.shiftViewFilter = btn.getAttribute('data-shift-filter') || 'all';
+      renderShiftsView();
+    });
+  });
+
+  // Original Document Preview Toggle
+  document.getElementById('btnToggleOriginalDoc')?.addEventListener('click', () => {
+    const body = document.getElementById('shiftOriginalDocBody');
+    if (body) body.classList.toggle('hidden');
+  });
+
+  // Upload Modal File Dropzone & Selection
+  const shiftDropzone = document.getElementById('shiftDropzone');
+  const shiftFileInput = document.getElementById('shiftFileInput');
+  const btnChooseShiftFile = document.getElementById('btnChooseShiftFile');
+
+  if (shiftDropzone && shiftFileInput) {
+    btnChooseShiftFile?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      shiftFileInput.click();
+    });
+    shiftDropzone.addEventListener('click', () => shiftFileInput.click());
+
+    shiftDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      shiftDropzone.classList.add('dragover');
+    });
+    shiftDropzone.addEventListener('dragleave', () => shiftDropzone.classList.remove('dragover'));
+    shiftDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      shiftDropzone.classList.remove('dragover');
+      if (e.dataTransfer?.files?.length > 0) {
+        processShiftPlanFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    shiftFileInput.addEventListener('change', (e) => {
+      if (e.target.files?.length > 0) {
+        processShiftPlanFile(e.target.files[0]);
+      }
+    });
+  }
+
+  // Upload Modal Mode Tabs
+  document.querySelectorAll('[data-tab-target]').forEach(tabBtn => {
+    tabBtn.addEventListener('click', () => {
+      const targetId = tabBtn.getAttribute('data-tab-target');
+      document.querySelectorAll('.modal-nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.add('hidden'));
+      tabBtn.classList.add('active');
+      const targetContent = document.getElementById(targetId);
+      if (targetContent) targetContent.classList.remove('hidden');
+    });
+  });
+
+  // Paste Text Parse Button
+  document.getElementById('btnParsePastedText')?.addEventListener('click', () => {
+    const textVal = document.getElementById('shiftPasteInput')?.value || '';
+    if (!textVal.trim()) {
+      showToast('Bitte Text oder Tabelle einfügen.', 'warning');
+      return;
+    }
+    const weekSelect = document.getElementById('shiftTargetWeekSelect');
+    const offset = parseInt(weekSelect ? weekSelect.value : '0', 10) || 0;
+    try {
+      const plan = parseTextShiftPlan(textVal, offset, 'Eingefügter Text-Plan');
+      if (!plan || plan.totalShiftsCount === 0) {
+        throw new Error('Keine Schichten oder Mitarbeiternamen im Text erkannt.');
+      }
+      pendingRecognizedPlan = plan;
+      showRecognitionPreview(plan);
+      const btnApply = document.getElementById('btnApplyShiftPlan');
+      if (btnApply) btnApply.disabled = false;
+      showToast(`${plan.recognizedEmployeesCount} Mitarbeitende erkannt!`, 'success');
+    } catch (err) {
+      showToast('Erkennungsfehler: ' + err.message, 'error');
+    }
+  });
+
+  // Apply Recognized Shift Plan
+  document.getElementById('btnApplyShiftPlan')?.addEventListener('click', applyRecognizedShiftPlan);
+
   // Escape Key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -3281,6 +4218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   AppState.tasks = loaded.tasks;
   AppState.damages = loaded.damages || [];
   AppState.activityLog = loaded.activityLog;
+  AppState.shiftPlan = loaded.shiftPlan || null;
   AppState.currentUser = null; // LOGIN MUST BE ON START SCREEN ALWAYS
   AppState.theme = loaded.theme;
 
@@ -3303,6 +4241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       AppState.youths = serverData.youths || AppState.youths;
       AppState.tasks = serverData.tasks || AppState.tasks;
       AppState.damages = serverData.damages || AppState.damages;
+      if (serverData.shiftPlan !== undefined) AppState.shiftPlan = serverData.shiftPlan;
       if (Array.isArray(serverData.activityLog)) AppState.activityLog = serverData.activityLog;
       saveState();
       renderApp();
@@ -3314,6 +4253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tasks: AppState.tasks,
         damages: AppState.damages,
         activityLog: AppState.activityLog,
+        shiftPlan: AppState.shiftPlan,
         currentUser: AppState.currentUser,
         theme: AppState.theme
       });
@@ -3322,7 +4262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.debug('Init sync notice:', e);
   }
 
-  // Periodic background sync every 4 seconds (syncs damages & tasks across devices in real time)
+  // Periodic background sync every 4 seconds (syncs damages, tasks & shifts across devices in real time)
   setInterval(async () => {
     const openModal = document.querySelector('.modal-backdrop:not(.hidden)');
     if (openModal) return;
@@ -3334,13 +4274,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       e: AppState.employees,
       y: AppState.youths,
       t: AppState.tasks,
-      d: AppState.damages
+      d: AppState.damages,
+      s: AppState.shiftPlan
     });
     const remoteSerialized = JSON.stringify({
       e: remote.employees,
       y: remote.youths,
       t: remote.tasks,
-      d: remote.damages
+      d: remote.damages,
+      s: remote.shiftPlan
     });
 
     if (localSerialized !== remoteSerialized) {
@@ -3348,6 +4290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       AppState.youths = remote.youths || AppState.youths;
       AppState.tasks = remote.tasks || AppState.tasks;
       AppState.damages = remote.damages || AppState.damages;
+      if (remote.shiftPlan !== undefined) AppState.shiftPlan = remote.shiftPlan;
       if (Array.isArray(remote.activityLog)) AppState.activityLog = remote.activityLog;
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -3356,6 +4299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tasks: AppState.tasks,
         damages: AppState.damages,
         activityLog: AppState.activityLog,
+        shiftPlan: AppState.shiftPlan,
         currentUser: AppState.currentUser,
         theme: AppState.theme
       }));

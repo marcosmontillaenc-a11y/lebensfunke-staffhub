@@ -269,6 +269,18 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="#shifts" class="nav-link" data-nav="shifts">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>Schichtplan</span>
+                  <span id="badgeNavShifts" class="nav-badge nav-badge-blue" title="Schichten heute">0</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#login" class="nav-link" data-nav="login">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -495,6 +507,42 @@
                 <span id="statUrgentDamages" class="stat-chip chip-red">0 Dringend</span>
                 <span id="statResolvedDamages" class="stat-meta">0 behoben</span>
               </div>
+            </div>
+          </div>
+
+          <!-- Heutige Schichteinteilung laut Schichtplan -->
+          <div class="dash-schedule-widget" id="dashShiftScheduleCard">
+            <div class="dash-schedule-header">
+              <div class="dash-schedule-title-group">
+                <div class="dash-schedule-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="dash-schedule-title">Heutige Schichteinteilung laut Schichtplan</h3>
+                  <span id="dashScheduleDateBadge" class="dash-schedule-date">Dienstag, 13. Oktober 2026</span>
+                </div>
+              </div>
+              <div class="dash-schedule-actions">
+                <button type="button" id="btnDashUploadShiftPlan" class="btn btn-sm btn-outline-primary" title="Neuen Schichtplan hochladen">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span>Plan hochladen</span>
+                </button>
+                <button type="button" id="btnDashGoToShifts" class="btn btn-sm btn-outline" title="Ganzen Schichtplan ansehen">
+                  <span>Wochenplan ansehen →</span>
+                </button>
+              </div>
+            </div>
+            <div id="dashTodayShiftsGrid" class="dash-today-grid">
+              <!-- Rendered dynamically via JS -->
             </div>
           </div>
 
@@ -888,7 +936,112 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- VIEW 6: MITARBEITER- & SCHICHT-LOGIN       -->
+        <!-- VIEW 6: SCHICHTPLAN (UPLOAD & ERKENNUNG)   -->
+        <!-- ========================================== -->
+        <section id="view-shifts" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Personal- & Schichtplan</h1>
+              <p class="view-subtitle">Lebensfunke Heim Egerkingen · Wochenplan, Datei-Upload & automatische Schichterkennung</p>
+            </div>
+            <div class="view-actions">
+              <button type="button" id="btnDownloadShiftTemplate" class="btn btn-outline" title="Excel-Vorlage mit allen 12 Mitarbeitenden herunterladen">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Vorlage (.xlsx)</span>
+              </button>
+              <button type="button" id="btnOpenUploadShiftModal" class="btn btn-primary" title="Schichtplan hochladen (Excel, PDF, Foto, CSV)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Schichtplan hochladen</span>
+              </button>
+              <button type="button" id="btnClearShiftPlan" class="btn btn-outline-danger" title="Aktuellen Schichtplan leeren">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Plan leeren</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Week Navigation & Filter Bar -->
+          <div class="shifts-control-bar">
+            <div class="shifts-week-nav">
+              <button type="button" id="btnShiftPrevWeek" class="btn btn-sm btn-outline" title="Vorherige Woche">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Zurück</span>
+              </button>
+              <button type="button" id="btnShiftCurrentWeek" class="btn btn-sm btn-outline-primary" title="Aktuelle Woche">
+                <span>Diese Woche</span>
+              </button>
+              <button type="button" id="btnShiftNextWeek" class="btn btn-sm btn-outline" title="Nächste Woche">
+                <span>Vor</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+              <div id="shiftsWeekTitle" class="shifts-week-title">KW 42 · 12.10. – 18.10.2026</div>
+            </div>
+
+            <div class="shifts-team-filter">
+              <button type="button" class="btn-filter active" data-shift-filter="all">Alle Mitarbeitenden (12)</button>
+              <button type="button" class="btn-filter" data-shift-filter="Betreuung">Betreuung</button>
+              <button type="button" class="btn-filter" data-shift-filter="Heimleitung">Heimleitung</button>
+              <button type="button" class="btn-filter" data-shift-filter="Schule & Bildung">Schule</button>
+            </div>
+          </div>
+
+          <!-- Shift Legend Card -->
+          <div class="shifts-legend-card">
+            <span class="legend-item"><span class="shift-badge shift-badge-fd">FD</span> Frühdienst (06:30 – 15:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-sd">SD</span> Spätdienst (14:00 – 22:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-nd">ND</span> Nachtdienst (22:00 – 07:00)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-td">TD</span> Tagdienst (08:30 – 17:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-pik">PIK</span> Notfall-Pikett 24h</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-sch">SCH</span> Schule</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-frei">FREI</span> Frei / Ruhetag</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-urlaub">URLAUB</span> Ferien</span>
+          </div>
+
+          <!-- Active Schedule Table Container -->
+          <div id="shiftsTableCard" class="card shifts-table-card">
+            <div id="shiftsTableWrapper" class="shifts-table-wrapper">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Original Document Preview Card (shown if an image or pdf was uploaded) -->
+          <div id="shiftOriginalDocCard" class="card mt-4 hidden">
+            <div class="card-header flex-between">
+              <div class="flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h3 class="card-title text-sm">Hochgeladenes Originaldokument</h3>
+                <span id="shiftOriginalFileName" class="badge badge-cyan text-xs"></span>
+              </div>
+              <button type="button" id="btnToggleOriginalDoc" class="btn btn-sm btn-outline">Vorschau umschalten</button>
+            </div>
+            <div id="shiftOriginalDocBody" class="card-body">
+              <div id="shiftOriginalDocPreview" class="original-doc-preview"></div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 7: MITARBEITER- & SCHICHT-LOGIN       -->
         <!-- ========================================== -->
         <section id="view-login" class="content-view">
           
@@ -1423,10 +1576,140 @@
       </div>
     </div>
 
+    <!-- Upload & Recognize Shift Plan Modal -->
+    <div id="modalUploadShiftPlan" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalUploadShiftTitle">
+      <div class="modal-card modal-card-lg">
+        <div class="modal-header">
+          <div class="flex items-center gap-2">
+            <div class="stat-icon-wrapper icon-cyan sm">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 id="modalUploadShiftTitle" class="modal-title">Schichtplan hochladen & erkennen</h2>
+              <p class="modal-subtitle">Automatische Erkennung für Excel (.xlsx), PDF, Bild/Foto (.jpg, .png) & Text</p>
+            </div>
+          </div>
+          <button type="button" class="btn-icon modal-close" data-close-modal="modalUploadShiftPlan" aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Upload Tabs -->
+          <div class="modal-nav-tabs">
+            <button type="button" class="modal-nav-tab active" data-tab-target="tabUploadFile">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>Datei hochladen (Excel, PDF, Foto)</span>
+            </button>
+            <button type="button" class="modal-nav-tab" data-tab-target="tabUploadPaste">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span>Text / Tabelle einfügen</span>
+            </button>
+          </div>
+
+          <!-- Tab 1: File Dropzone -->
+          <div id="tabUploadFile" class="modal-tab-content active">
+            <div id="shiftDropzone" class="shift-dropzone">
+              <input type="file" id="shiftFileInput" class="visually-hidden" accept=".xlsx,.xls,.csv,.pdf,.png,.jpg,.jpeg,.webp,.txt">
+              <div class="dropzone-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h3 class="dropzone-title">Schichtplan hier hineinziehen oder klicken</h3>
+              <p class="dropzone-sub">Wähle eine Datei von deinem Computer oder Smartphone aus:</p>
+              <div class="dropzone-badges">
+                <span class="file-badge">📊 Excel (.xlsx, .xls)</span>
+                <span class="file-badge">📄 PDF (.pdf)</span>
+                <span class="file-badge">📷 Foto / Screenshot (.jpg, .png)</span>
+                <span class="file-badge">📑 CSV (.csv)</span>
+              </div>
+              <button type="button" id="btnChooseShiftFile" class="btn btn-sm btn-outline-cyan mt-3">Datei auswählen</button>
+            </div>
+          </div>
+
+          <!-- Tab 2: Paste Text -->
+          <div id="tabUploadPaste" class="modal-tab-content hidden">
+            <div class="form-group">
+              <label for="shiftPasteInput" class="form-label">Schichtplan als Text oder Tabelle einfügen (z.B. aus E-Mail oder Excel kopiert):</label>
+              <textarea id="shiftPasteInput" class="form-control font-mono" rows="8" placeholder="Beispiel:
+Mitarbeiter; Mo; Di; Mi; Do; Fr; Sa; So
+Bella; FD; FD; SCH; SCH; Frei; Frei; Frei
+Kerstin; SD; SD; SD; Frei; Frei; FD; FD
+Oliver; Frei; Frei; FD; FD; SD; SD; Frei
+..."></textarea>
+            </div>
+            <button type="button" id="btnParsePastedText" class="btn btn-outline-cyan btn-sm">Text analysieren & erkennen</button>
+          </div>
+
+          <!-- Progress / Parsing Spinner -->
+          <div id="shiftParsingProgress" class="shift-parsing-box hidden">
+            <div class="spinner"></div>
+            <div>
+              <div id="shiftProgressTitle" class="font-semibold text-white">Dokument wird analysiert...</div>
+              <div id="shiftProgressSubtitle" class="text-xs text-muted">KI-Schichterkennung durchsucht Zeilen nach den 12 Mitarbeitenden & Schichten</div>
+            </div>
+          </div>
+
+          <!-- Recognition Results Card -->
+          <div id="shiftRecognitionCard" class="shift-recognition-card hidden">
+            <div class="recognition-header">
+              <div class="recognition-badge-ok">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span id="shiftRecognitionSummary">Schichtplan erfolgreich erkannt!</span>
+              </div>
+              <div class="form-group mb-0 flex items-center gap-2">
+                <label for="shiftTargetWeekSelect" class="text-xs text-muted mb-0">Gültige Woche:</label>
+                <select id="shiftTargetWeekSelect" class="form-control form-control-sm" style="width: auto;">
+                  <!-- Options filled via JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Preview Matrix -->
+            <div id="shiftRecognitionPreview" class="recognition-preview-table-wrapper">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <div id="shiftUploadError" class="login-auth-error hidden mt-3">
+            <span id="shiftUploadErrorText"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modalUploadShiftPlan">Abbrechen</button>
+          <button type="button" id="btnApplyShiftPlan" class="btn btn-success" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Schichtplan aktivieren & speichern</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   </div>
+
+  <!-- Vendor Libraries for Shift Plan Recognition -->
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="vendor/pdf.min.js"></script>
+  <script src="vendor/tesseract.min.js"></script>
 
   <!-- Main JavaScript App -->
   <script src="app.js"></script>
