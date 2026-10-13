@@ -694,7 +694,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
     if (pass !== 'bella' && pass !== 'lebensfunke') {
       return {
         success: false,
-        message: 'Falsches Admin-Passwort f?r Bella. (Tipp: bella oder lebensfunke)'
+        message: 'Falsches Admin-Passwort für Bella.'
       };
     }
 
@@ -712,7 +712,7 @@ function loginAsEmployee(employeeIdentifier, password = '') {
     if (pass && pass !== validPass && pass !== 'lebensfunke' && pass !== '1234') {
       return {
         success: false,
-        message: `Falsches Passwort f?r ${emp.name}. Verwende "${validPass}" oder "lebensfunke".`
+        message: `Falsches Passwort für ${emp.name}.`
       };
     }
 
@@ -871,15 +871,21 @@ function renderGatekeeperUI() {
   }).join('');
 
   staffGrid.querySelectorAll('.gate-staff-card').forEach(card => {
+    card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
       const empId = card.getAttribute('data-gate-emp-id');
       const emp = AppState.employees.find(e => e.id === empId);
       if (!emp) return;
 
       if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-        switchToGatePasswordTab('bella');
+        const pass = prompt('Bitte Admin-Passwort für Bella eingeben:');
+        if (pass === null) return;
+        const res = loginAsEmployee(emp.id, pass);
+        if (!res.success) {
+          showToast(res.message || 'Falsches Admin-Passwort.', 'error');
+        }
       } else {
-        loginAsEmployee(emp.id, emp.name.toLowerCase());
+        loginAsEmployee(emp.id);
       }
     });
   });
@@ -1836,9 +1842,16 @@ function renderLoginView() {
         if (!emp) return;
 
         if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-          openLoginModal();
+          const pass = prompt('Bitte Admin-Passwort für Bella eingeben:');
+          if (pass === null) return;
+          const res = loginAsEmployee(emp.id, pass);
+          if (res.success) {
+            switchView('dashboard');
+          } else {
+            showToast(res.message || 'Falsches Admin-Passwort.', 'error');
+          }
         } else {
-          loginAsEmployee(emp.id, emp.name.toLowerCase());
+          loginAsEmployee(emp.id);
           switchView('dashboard');
         }
       });
@@ -3209,10 +3222,9 @@ function setupEventListeners() {
   document.getElementById('btnViewLoginHelp')?.addEventListener('click', () => {
     alert('Zugangsinformationen Heim Egerkingen:
 
-? Admin Bella: Benutzer "bella" / Passwort "bella" (oder "lebensfunke")
-? Alle Mitarbeitenden: Profil anklicken oder Vorname als Passwort verwenden.
+Bitte wenden Sie sich für Ihre persönlichen Zugangsdaten an die Heimleitung oder die Administration.
 
-Das Portal ist gesch?tzt und erfordert immer eine Anmeldung.');
+Das Portal ist geschützt und erfordert eine gültige Schicht-Anmeldung.');
   });
 
   // Data Export & Import
@@ -3701,7 +3713,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   AppState.tasks = loaded.tasks;
   AppState.damages = loaded.damages || [];
   AppState.activityLog = loaded.activityLog;
-  AppState.currentUser = loaded.currentUser;
+  AppState.currentUser = null; // LOGIN MUST BE ON START SCREEN ALWAYS
   AppState.theme = loaded.theme;
 
   applyTheme(AppState.theme);
@@ -3784,5 +3796,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }, 4000);
 
-  console.log('Lebensfunke Heim Egerkingen Dashboard bereit (12 Mitarbeitende, 10 Jugendliche). Angemeldet als:', AppState.currentUser.displayName);
+  console.log('Lebensfunke Heim Egerkingen Dashboard bereit (12 Mitarbeitende, 10 Jugendliche). Angemeldet als:', AppState.currentUser ? AppState.currentUser.displayName : 'Startbildschirm (Login erforderlich)');
 });

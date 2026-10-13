@@ -101,7 +101,7 @@
 
             <div class="form-group">
               <label for="gateInputPassword" class="form-label">Passwort / PIN</label>
-              <input type="password" id="gateInputPassword" class="form-control" placeholder="Passwort eingeben" required>
+              <input type="password" id="gateInputPassword" class="form-control" placeholder="Passwort eingeben">
             </div>
 
             <div id="gateAuthError" class="login-auth-error hidden">
@@ -123,7 +123,6 @@
       <!-- Footer Info -->
       <div class="gatekeeper-footer">
         <span>Lebensfunke AG · Kanzelstrasse 23 · 4622 Egerkingen</span>
-        <span class="gate-hint">Standard-Passwörter: Bella = <code>bella</code> | Mitarbeitende = Vorname oder <code>lebensfunke</code></span>
       </div>
 
     </div>
@@ -987,7 +986,7 @@
                 </div>
                 <div class="form-group flex-1">
                   <label for="manualLoginPassword" class="form-label">Passwort / PIN</label>
-                  <input type="password" id="manualLoginPassword" class="form-control" placeholder="Vorname oder lebensfunke" required>
+                  <input type="password" id="manualLoginPassword" class="form-control" placeholder="Passwort eingeben">
                 </div>
                 <div class="form-group flex-auto login-submit-btn-wrapper">
                   <button type="submit" class="btn btn-primary">
@@ -1083,11 +1082,6 @@
 
             <div id="loginAuthError" class="login-auth-error hidden">
               <span>Zugriff verweigert: Bitte Zugangsdaten prüfen.</span>
-            </div>
-
-            <div class="login-credentials-hint">
-              <div class="hint-title">Zugangsinformation:</div>
-              <div class="hint-row">Admin: <code>bella</code> (Passwort: <code>bella</code>) | Mitarbeitende: <code>vorname</code> oder <code>lebensfunke</code></div>
             </div>
 
             <div class="login-modal-buttons">
