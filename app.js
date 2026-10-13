@@ -86,84 +86,120 @@ const INITIAL_SEED_DATA = Object.freeze({
       name: 'Bella',
       role: 'Schulpersonal & App-Administratorin',
       team: 'Schule & Bildung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'bella',
+      isAdmin: true,
+      initials: 'BE'
     },
     {
       id: 'emp-102',
       name: 'Cigdem',
       role: 'Heimleitung',
       team: 'Heimleitung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'cigdem',
+      isAdmin: false,
+      initials: 'CI'
     },
     {
       id: 'emp-103',
       name: 'Serdar',
       role: 'Heimleitung',
       team: 'Heimleitung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'serdar',
+      isAdmin: false,
+      initials: 'SE'
     },
     {
       id: 'emp-104',
       name: 'Kimete',
       role: 'SV / Heimleitung',
       team: 'Heimleitung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'kimete',
+      isAdmin: false,
+      initials: 'KI'
     },
     {
       id: 'emp-105',
       name: 'Sandra',
       role: 'Teamleitung',
       team: 'Teamleitung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'sandra',
+      isAdmin: false,
+      initials: 'SA'
     },
     {
       id: 'emp-106',
       name: 'Kerstin',
       role: 'Betreuungspersonal',
       team: 'Betreuung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'kerstin',
+      isAdmin: false,
+      initials: 'KE'
     },
     {
       id: 'emp-107',
       name: 'Oliver',
       role: 'Betreuungspersonal',
       team: 'Betreuung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'oliver',
+      isAdmin: false,
+      initials: 'OL'
     },
     {
       id: 'emp-108',
       name: 'Samia',
       role: 'Betreuungspersonal',
       team: 'Betreuung',
-      status: 'abwesend'
+      status: 'abwesend',
+      username: 'samia',
+      isAdmin: false,
+      initials: 'SA'
     },
     {
       id: 'emp-109',
       name: 'Laura',
       role: 'Betreuungspersonal',
       team: 'Betreuung',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'laura',
+      isAdmin: false,
+      initials: 'LA'
     },
     {
       id: 'emp-110',
       name: 'Semi',
       role: 'Praktikant',
       team: 'Praktikum',
-      status: 'anwesend'
+      status: 'anwesend',
+      username: 'semi',
+      isAdmin: false,
+      initials: 'SE'
     },
     {
       id: 'emp-111',
       name: 'Donika',
       role: 'Praktikantin',
       team: 'Praktikum',
-      status: 'frei'
+      status: 'frei',
+      username: 'donika',
+      isAdmin: false,
+      initials: 'DO'
     },
     {
       id: 'emp-112',
       name: 'Steffi',
       role: 'Schulpersonal',
       team: 'Schule & Bildung',
-      status: 'frei'
+      status: 'frei',
+      username: 'steffi',
+      isAdmin: false,
+      initials: 'ST'
     }
   ],
   youths: [
@@ -428,11 +464,7 @@ const INITIAL_SEED_DATA = Object.freeze({
       type: 'create'
     }
   ],
-  currentUser: {
-    username: 'bella',
-    displayName: 'Bella',
-    role: 'admin'
-  },
+  currentUser: null,
   theme: 'dark'
 });
 
@@ -446,11 +478,7 @@ let AppState = {
   tasks: [],
   damages: [],
   activityLog: [],
-  currentUser: {
-    username: 'bella',
-    displayName: 'Bella',
-    role: 'admin'
-  },
+  currentUser: null,
   theme: 'dark',
   activeView: 'dashboard',
   filters: {
@@ -474,7 +502,7 @@ function loadState() {
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks : INITIAL_SEED_DATA.tasks,
       damages: Array.isArray(parsed.damages) ? parsed.damages : (INITIAL_SEED_DATA.damages || []),
       activityLog: Array.isArray(parsed.activityLog) ? parsed.activityLog : INITIAL_SEED_DATA.activityLog,
-      currentUser: parsed.currentUser && parsed.currentUser.username ? parsed.currentUser : INITIAL_SEED_DATA.currentUser,
+      currentUser: (parsed.currentUser && parsed.currentUser.id) ? parsed.currentUser : null,
       theme: parsed.theme || 'dark'
     };
   } catch (err) {
@@ -622,64 +650,129 @@ function importStateFromJson(file) {
 }
 
 // ============================================================================
-// 3. AUTHENTICATION SYSTEM (BELLA = EXKLUSIVER APP ADMIN)
+// 3. AUTHENTICATION SYSTEM (INDIVIDUELLER MITARBEITER- & ADMIN-LOGIN)
 // ============================================================================
 
 function isBellaAdmin() {
-  return AppState.currentUser && 
-         AppState.currentUser.username.toLowerCase() === 'bella' && 
-         AppState.currentUser.role === 'admin';
+  return !!(AppState.currentUser && 
+         (AppState.currentUser.username?.toLowerCase() === 'bella' || 
+          AppState.currentUser.displayName?.toLowerCase() === 'bella' || 
+          AppState.currentUser.isAdmin === true));
+}
+
+function getLoggedInEmployee() {
+  if (!AppState.currentUser || !AppState.currentUser.id) return null;
+  return AppState.employees.find(e => e.id === AppState.currentUser.id) || null;
+}
+
+function loginAsEmployee(employeeIdentifier, password = '') {
+  const norm = (employeeIdentifier || '').trim().toLowerCase();
+  const emp = AppState.employees.find(e => 
+    e.id.toLowerCase() === norm || 
+    (e.username && e.username.toLowerCase() === norm) || 
+    e.name.toLowerCase() === norm
+  );
+
+  if (!emp) {
+    return {
+      success: false,
+      message: 'Mitarbeitender nicht gefunden. Bitte w?hle ein Profil aus der Liste.'
+    };
+  }
+
+  const pass = (password || '').trim();
+
+  // If logging in as Bella (Admin):
+  if (emp.name.toLowerCase() === 'bella' || (emp.username && emp.username.toLowerCase() === 'bella')) {
+    if (!pass) {
+      return {
+        success: false,
+        requiresPassword: true,
+        message: 'Admin-Passwort f?r Bella erforderlich.'
+      };
+    }
+    if (pass !== 'bella' && pass !== 'lebensfunke') {
+      return {
+        success: false,
+        message: 'Falsches Admin-Passwort f?r Bella. (Tipp: bella oder lebensfunke)'
+      };
+    }
+
+    AppState.currentUser = {
+      id: emp.id,
+      username: 'bella',
+      displayName: 'Bella',
+      role: 'Schulpersonal & App-Administratorin',
+      team: 'Schule & Bildung',
+      isAdmin: true
+    };
+  } else {
+    // Any other staff member:
+    const validPass = emp.name.toLowerCase();
+    if (pass && pass !== validPass && pass !== 'lebensfunke' && pass !== '1234') {
+      return {
+        success: false,
+        message: `Falsches Passwort f?r ${emp.name}. Verwende "${validPass}" oder "lebensfunke".`
+      };
+    }
+
+    AppState.currentUser = {
+      id: emp.id,
+      username: emp.username || emp.name.toLowerCase(),
+      displayName: emp.name,
+      role: emp.role,
+      team: emp.team,
+      isAdmin: false
+    };
+
+    // Auto-set status to 'anwesend' (im Dienst) if they were 'frei' or 'abwesend'
+    if (emp.status !== EMPLOYEE_STATUSES.ANWESEND) {
+      emp.status = EMPLOYEE_STATUSES.ANWESEND;
+    }
+  }
+
+  saveState();
+  checkAccessGate();
+  renderApp();
+
+  logActivity('Schicht-Login', `${AppState.currentUser.displayName} (${AppState.currentUser.role}) hat sich angemeldet.`, 'system');
+  showToast(`Willkommen im Dienst, ${AppState.currentUser.displayName}!`, 'success');
+
+  return { success: true, employee: emp };
 }
 
 function loginAsBella(username, password) {
-  const normUser = (username || '').trim().toLowerCase();
-  const normPass = (password || '').trim();
+  return loginAsEmployee('bella', password);
+}
 
-  if (normUser !== 'bella') {
-    return {
-      success: false,
-      message: 'Zugriff verweigert: Nur Bella besitzt Administratorrechte für das Heim Egerkingen.'
-    };
-  }
-
-  if (!normPass) {
-    return {
-      success: false,
-      message: 'Bitte geben Sie ein Passwort ein.'
-    };
-  }
-
-  AppState.currentUser = {
-    username: 'bella',
-    displayName: 'Bella',
-    role: 'admin'
-  };
-
+function logoutUser() {
+  const prevName = AppState.currentUser ? AppState.currentUser.displayName : 'Mitarbeiter';
+  AppState.currentUser = null;
   saveState();
-  renderAuthUI();
-  renderRoleUI();
+  checkAccessGate();
   renderApp();
-
-  logActivity('Admin Login', 'Bella hat sich erfolgreich als Administratorin angemeldet.', 'system');
-  showToast('Willkommen zurück, Bella! Volle Admin-Rechte aktiviert.', 'success');
-
-  return { success: true };
+  logActivity('Dienst abgemeldet', `${prevName} hat sich abgemeldet. Portal gesperrt.`, 'system');
+  showToast('Erfolgreich abgemeldet. Portal ist gesperrt.', 'info');
 }
 
 function logoutToMitarbeiter() {
-  AppState.currentUser = {
-    username: 'mitarbeiter',
-    displayName: 'Mitarbeiter (Lesemodus)',
-    role: 'mitarbeiter'
-  };
+  logoutUser();
+}
 
+function setMyDutyStatus(newStatus) {
+  if (!AppState.currentUser || !AppState.currentUser.id) {
+    showToast('Bitte melde dich zuerst an.', 'warning');
+    checkAccessGate();
+    return;
+  }
+  const emp = AppState.employees.find(e => e.id === AppState.currentUser.id);
+  if (!emp) return;
+
+  emp.status = newStatus;
   saveState();
-  renderAuthUI();
-  renderRoleUI();
   renderApp();
-
-  logActivity('Abgemeldet', 'Benutzer ist nun im Mitarbeiter-Modus (Nur-Lesen).', 'system');
-  showToast('Abgemeldet: Mitarbeiter-Modus (Nur-Lesen) aktiv.', 'info');
+  logActivity('Statuswechsel', `${emp.name} hat den Dienststatus auf "${newStatus}" gesetzt.`, 'update');
+  showToast(`Dienststatus f?r ${emp.name} auf "${newStatus}" aktualisiert.`, 'success');
 }
 
 function openLoginModal() {
@@ -689,8 +782,10 @@ function openLoginModal() {
   const passInput = document.getElementById('loginPassword');
 
   if (errorBox) errorBox.classList.add('hidden');
-  if (userInput) userInput.value = 'bella';
+  if (userInput) userInput.value = isBellaAdmin() ? 'bella' : (AppState.currentUser?.displayName || 'bella');
   if (passInput) passInput.value = '';
+
+  renderModalStaffList();
 
   if (modal) modal.classList.remove('hidden');
   if (passInput) passInput.focus();
@@ -699,9 +794,173 @@ function openLoginModal() {
 function assertAdmin(actionName = 'Diese Aktion') {
   if (isBellaAdmin()) return true;
 
-  showToast(`${actionName} ist gesperrt: Nur für Bella (Admin) freigeschaltet.`, 'warning');
+  showToast(`${actionName} ist gesperrt: Nur f?r Bella (Admin) freigeschaltet.`, 'warning');
   openLoginModal();
   return false;
+}
+
+function checkAccessGate() {
+  const gate = document.getElementById('gatekeeperLogin');
+  const app = document.getElementById('app');
+
+  const isLoggedIn = !!(AppState.currentUser && AppState.currentUser.id);
+
+  if (gate) {
+    gate.style.display = isLoggedIn ? 'none' : 'flex';
+  }
+  if (app) {
+    app.style.display = isLoggedIn ? 'flex' : 'none';
+  }
+
+  if (!isLoggedIn) {
+    renderGatekeeperUI();
+  }
+}
+
+let gatekeeperCurrentTeamFilter = 'all';
+
+function renderGatekeeperUI() {
+  const staffGrid = document.getElementById('gateStaffGrid');
+  const selectUser = document.getElementById('gateSelectUser');
+  if (!staffGrid) return;
+
+  let filtered = AppState.employees;
+  if (gatekeeperCurrentTeamFilter === 'admin') {
+    filtered = AppState.employees.filter(e => e.isAdmin || e.name.toLowerCase() === 'bella');
+  } else if (gatekeeperCurrentTeamFilter !== 'all') {
+    filtered = AppState.employees.filter(e => e.team === gatekeeperCurrentTeamFilter);
+  }
+
+  staffGrid.innerHTML = filtered.map(emp => {
+    const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
+    const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
+
+    let statusLabel = 'Frei';
+    let statusClass = 'text-muted';
+    if (emp.status === 'anwesend') {
+      statusLabel = 'Im Dienst';
+      statusClass = 'text-success';
+    } else if (emp.status === 'abwesend') {
+      statusLabel = 'Pause';
+      statusClass = 'text-warning';
+    }
+
+    return `
+      <div class="gate-staff-card ${isAdmin ? 'admin-card' : ''}" data-gate-emp-id="${emp.id}">
+        <div class="gate-card-top">
+          <div class="gate-card-avatar ${isAdmin ? 'admin-avatar' : ''}">
+            ${initials}
+          </div>
+          <div class="gate-card-info">
+            <div class="gate-card-name">
+              ${escapeHtml(emp.name)}
+              ${isAdmin ? '??' : ''}
+            </div>
+            <div class="gate-card-role">${escapeHtml(emp.role)}</div>
+            <div class="gate-card-team">${escapeHtml(emp.team)} ? <span class="${statusClass}">${statusLabel}</span></div>
+          </div>
+        </div>
+        <button type="button" class="gate-btn-login ${isAdmin ? 'btn-staff-admin' : ''}">
+          <span>${isAdmin ? '?? Als Bella (Admin) anmelden' : `Als ${escapeHtml(emp.name)} anmelden`}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  staffGrid.querySelectorAll('.gate-staff-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const empId = card.getAttribute('data-gate-emp-id');
+      const emp = AppState.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
+        switchToGatePasswordTab('bella');
+      } else {
+        loginAsEmployee(emp.id, emp.name.toLowerCase());
+      }
+    });
+  });
+
+  if (selectUser && selectUser.options.length === 0) {
+    selectUser.innerHTML = AppState.employees.map(emp => {
+      const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
+      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isAdmin ? ' ? ?? Admin' : ''})</option>`;
+    }).join('');
+  }
+}
+
+function switchToGatePasswordTab(selectedUsername = null) {
+  const tabSelectBtn = document.getElementById('btnGateTabSelect');
+  const tabPassBtn = document.getElementById('btnGateTabPassword');
+  const contentSelect = document.getElementById('gateTabContentSelect');
+  const contentPass = document.getElementById('gateTabContentPassword');
+  const userSelect = document.getElementById('gateSelectUser');
+  const passInput = document.getElementById('gateInputPassword');
+
+  if (tabSelectBtn) tabSelectBtn.classList.remove('active');
+  if (tabPassBtn) tabPassBtn.classList.add('active');
+  if (contentSelect) contentSelect.classList.add('hidden');
+  if (contentPass) contentPass.classList.remove('hidden');
+
+  if (selectedUsername && userSelect) {
+    const target = AppState.employees.find(e => e.name.toLowerCase() === selectedUsername.toLowerCase() || e.id === selectedUsername);
+    if (target) userSelect.value = target.id;
+  }
+  if (passInput) passInput.focus();
+}
+
+function switchToGateSelectTab() {
+  const tabSelectBtn = document.getElementById('btnGateTabSelect');
+  const tabPassBtn = document.getElementById('btnGateTabPassword');
+  const contentSelect = document.getElementById('gateTabContentSelect');
+  const contentPass = document.getElementById('gateTabContentPassword');
+
+  if (tabSelectBtn) tabSelectBtn.classList.add('active');
+  if (tabPassBtn) tabPassBtn.classList.remove('active');
+  if (contentSelect) contentSelect.classList.remove('hidden');
+  if (contentPass) contentPass.classList.add('hidden');
+}
+
+function renderModalStaffList() {
+  const container = document.getElementById('modalStaffSelectList');
+  if (!container) return;
+
+  container.innerHTML = AppState.employees.map(emp => {
+    const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
+    const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
+
+    return `
+      <button type="button" class="modal-staff-item-btn ${isAdmin ? 'is-admin-item' : ''}" data-modal-emp-id="${emp.id}">
+        <div class="modal-staff-item-avatar ${isAdmin ? 'admin-avatar' : ''}">${initials}</div>
+        <div class="modal-staff-item-text">
+          <span class="modal-staff-item-name">${escapeHtml(emp.name)} ${isAdmin ? '??' : ''}</span>
+          <span class="modal-staff-item-role">${escapeHtml(emp.team)}</span>
+        </div>
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.modal-staff-item-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const empId = btn.getAttribute('data-modal-emp-id');
+      const emp = AppState.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
+        document.getElementById('tabBtnPasswordLogin')?.click();
+        const userInput = document.getElementById('loginUsername');
+        const passInput = document.getElementById('loginPassword');
+        if (userInput) userInput.value = 'bella';
+        if (passInput) passInput.focus();
+      } else {
+        loginAsEmployee(emp.id, emp.name.toLowerCase());
+        closeModal('modalLogin');
+      }
+    });
+  });
 }
 
 // ============================================================================
@@ -1191,7 +1450,7 @@ function deleteDamage(damageId) {
 // ============================================================================
 
 function switchView(viewName) {
-  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages'];
+  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages', 'login'];
   const target = validViews.includes(viewName) ? viewName : 'dashboard';
 
   AppState.activeView = target;
@@ -1215,6 +1474,7 @@ function switchView(viewName) {
   if (target === 'youths') renderYouths();
   if (target === 'tasks') renderTasks();
   if (target === 'damages') renderDamages();
+  if (target === 'login') renderLoginView();
 }
 
 function closeMobileSidebar() {
@@ -1229,58 +1489,63 @@ function closeMobileSidebar() {
 // ============================================================================
 
 function renderApp() {
+  checkAccessGate();
   renderAuthUI();
   renderBadges();
   renderRoleUI();
+  renderShiftCockpit();
   renderDashboard();
   renderEmployees();
   renderYouths();
   renderTasks();
   renderDamages();
+  renderLoginView();
 }
 
 function renderAuthUI() {
   const container = document.getElementById('authStatusContainer');
   if (!container) return;
 
-  const isAdmin = isBellaAdmin();
-
-  if (isAdmin) {
-    container.innerHTML = `
-      <div class="auth-user-chip" title="Angemeldet als Bella (App Admin)">
-        <div class="auth-avatar">BE</div>
-        <div class="auth-details">
-          <span class="auth-name">
-            Bella
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="3">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </span>
-          <span class="auth-role-tag">App Admin · Schule</span>
-        </div>
-        <button id="btnAuthLogout" class="btn-logout" title="Abmelden (In Mitarbeitermodus wechseln)">
-          Abmelden
-        </button>
-      </div>
-    `;
-
-    document.getElementById('btnAuthLogout')?.addEventListener('click', logoutToMitarbeiter);
-  } else {
+  const user = AppState.currentUser;
+  if (!user || !user.id) {
     container.innerHTML = `
       <div class="auth-guest-chip">
-        <span class="guest-badge desktop-only">Mitarbeiter (Lesemodus)</span>
-        <button id="btnAuthLogin" class="btn-login-trigger" title="Mit Admin-Zugang für Bella anmelden">
+        <button id="btnAuthLogin" class="btn-login-trigger" title="Mitarbeiter-Login ?ffnen">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <span>Als Bella anmelden</span>
+          <span>Anmelden</span>
         </button>
       </div>
     `;
-
-    document.getElementById('btnAuthLogin')?.addEventListener('click', openLoginModal);
+    document.getElementById('btnAuthLogin')?.addEventListener('click', () => checkAccessGate());
+    return;
   }
+
+  const isAdmin = isBellaAdmin();
+  const initials = user.displayName ? user.displayName.substring(0, 2).toUpperCase() : 'LF';
+
+  container.innerHTML = `
+    <div class="auth-user-chip" title="Angemeldet als ${escapeHtml(user.displayName)} (${escapeHtml(user.role)})">
+      <div class="auth-avatar ${isAdmin ? 'admin-avatar' : ''}">${initials}</div>
+      <div class="auth-details">
+        <span class="auth-name">
+          ${escapeHtml(user.displayName)}
+          ${isAdmin ? '??' : ''}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="auth-role-tag">${isAdmin ? 'App Admin ? Schule' : escapeHtml(user.team)}</span>
+      </div>
+      <button id="btnAuthLogout" class="btn-logout" title="Abmelden und Portal sperren">
+        Abmelden
+      </button>
+    </div>
+  `;
+
+  document.getElementById('btnAuthLogout')?.addEventListener('click', logoutUser);
 }
 
 function renderBadges() {
@@ -1288,6 +1553,7 @@ function renderBadges() {
   const badgeYouths = document.getElementById('badgeNavYouths');
   const badgeTasks = document.getElementById('badgeNavTasks');
   const badgeDamages = document.getElementById('badgeNavDamages');
+  const badgeLogin = document.getElementById('badgeNavLoginStatus');
 
   if (badgeEmp) {
     badgeEmp.textContent = AppState.employees.length;
@@ -1302,6 +1568,15 @@ function renderBadges() {
   if (badgeDamages) {
     const openDamagesCount = AppState.damages.filter(d => d.status !== DAMAGE_STATUSES.BEHOBEN).length;
     badgeDamages.textContent = openDamagesCount;
+  }
+  if (badgeLogin) {
+    if (AppState.currentUser && AppState.currentUser.displayName) {
+      badgeLogin.textContent = AppState.currentUser.displayName;
+      badgeLogin.className = 'nav-badge ' + (isBellaAdmin() ? 'nav-badge-amber' : 'nav-badge-cyan');
+    } else {
+      badgeLogin.textContent = 'Gesperrt';
+      badgeLogin.className = 'nav-badge nav-badge-red';
+    }
   }
 }
 
@@ -1344,6 +1619,238 @@ function renderRoleUI() {
       }
     }
   });
+}
+
+function renderShiftCockpit() {
+  const container = document.getElementById('dashShiftCockpit');
+  if (!container) return;
+
+  const user = AppState.currentUser;
+  if (!user || !user.id) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const emp = getLoggedInEmployee();
+  const isAdmin = isBellaAdmin();
+  const initials = user.displayName ? user.displayName.substring(0, 2).toUpperCase() : 'LF';
+
+  const myTasks = AppState.tasks.filter(t => t.assignedTo === user.id && t.status !== TASK_STATUSES.ERLEDIGT);
+  const myYouths = AppState.youths.filter(y => y.bezugsperson === user.id || y.schulbegleitung === user.id);
+  const currentStatus = emp ? emp.status : 'anwesend';
+
+  container.innerHTML = `
+    <div class="shift-cockpit-card ${isAdmin ? 'is-admin' : ''}">
+      <div class="shift-cockpit-user">
+        <div class="shift-cockpit-avatar ${isAdmin ? 'admin-avatar' : ''}">${initials}</div>
+        <div class="shift-cockpit-info">
+          <div class="shift-cockpit-greeting">
+            <span>?? Willkommen im Dienst, <strong>${escapeHtml(user.displayName)}</strong>!</span>
+            ${isAdmin ? '<span class="badge badge-amber">?? App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
+          </div>
+          <div class="shift-cockpit-sub">
+            <span>Rolle: ${escapeHtml(user.role)}</span>
+            <span>?</span>
+            <span>?? Meine Aufgaben: <strong>${myTasks.length} offen</strong></span>
+            <span>?</span>
+            <span>?? Bezugsjugendliche: <strong>${myYouths.length}</strong> (${myYouths.map(y => escapeHtml(y.name)).join(', ') || 'Keine'})</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shift-cockpit-controls">
+        <div class="duty-status-group" title="Deinen Schicht-Status ?ndern">
+          <button type="button" class="btn-duty-pill ${currentStatus === 'anwesend' ? 'active-anwesend' : ''}" data-duty-change="anwesend">
+            ?? Im Dienst
+          </button>
+          <button type="button" class="btn-duty-pill ${currentStatus === 'abwesend' ? 'active-abwesend' : ''}" data-duty-change="abwesend">
+            ?? Pause
+          </button>
+          <button type="button" class="btn-duty-pill ${currentStatus === 'frei' ? 'active-frei' : ''}" data-duty-change="frei">
+            ? Frei
+          </button>
+        </div>
+
+        <button type="button" id="btnCockpitSwitchProfile" class="btn btn-sm btn-outline" title="Schicht ?bergeben / Profil wechseln">
+          Schicht ?bergeben
+        </button>
+        <button type="button" id="btnCockpitLogout" class="btn btn-sm btn-outline-danger" title="Abmelden und Portal sperren">
+          Abmelden
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll('[data-duty-change]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMyDutyStatus(btn.getAttribute('data-duty-change'));
+    });
+  });
+
+  document.getElementById('btnCockpitSwitchProfile')?.addEventListener('click', () => {
+    switchView('login');
+  });
+
+  document.getElementById('btnCockpitLogout')?.addEventListener('click', logoutUser);
+}
+
+let loginViewCurrentTeamFilter = 'all';
+
+function renderLoginView() {
+  const sessionCard = document.getElementById('loginCurrentSessionCard');
+  const staffGrid = document.getElementById('loginStaffGrid');
+  const manualSelect = document.getElementById('manualLoginUsername');
+
+  const user = AppState.currentUser;
+  const isAdmin = isBellaAdmin();
+
+  if (sessionCard) {
+    if (user && user.id) {
+      const emp = getLoggedInEmployee();
+      const currentStatus = emp ? emp.status : 'anwesend';
+      const initials = user.displayName ? user.displayName.substring(0, 2).toUpperCase() : 'LF';
+
+      sessionCard.innerHTML = `
+        <div class="session-active-box">
+          <div class="session-user-profile">
+            <div class="session-avatar-large ${isAdmin ? 'is-admin' : ''}">${initials}</div>
+            <div class="session-details">
+              <div class="session-title">
+                <span>Angemeldet als <strong>${escapeHtml(user.displayName)}</strong></span>
+                ${isAdmin ? '<span class="badge badge-amber">?? App Admin</span>' : `<span class="badge badge-cyan">${escapeHtml(user.team)}</span>`}
+              </div>
+              <div class="session-meta">
+                <span>Rolle: ${escapeHtml(user.role)}</span>
+                <span>?</span>
+                <span class="session-status-badge ${currentStatus === 'anwesend' ? 'status-pill-anwesend' : currentStatus === 'abwesend' ? 'status-pill-abwesend' : 'status-pill-frei'}">
+                  ${currentStatus === 'anwesend' ? '?? Im Dienst' : currentStatus === 'abwesend' ? '?? Pause' : '? Frei'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="shift-cockpit-controls">
+            <div class="duty-status-group" title="Deinen Dienststatus ?ndern">
+              <button type="button" class="btn-duty-pill ${currentStatus === 'anwesend' ? 'active-anwesend' : ''}" data-duty-change="anwesend">?? Im Dienst</button>
+              <button type="button" class="btn-duty-pill ${currentStatus === 'abwesend' ? 'active-abwesend' : ''}" data-duty-change="abwesend">?? Pause</button>
+              <button type="button" class="btn-duty-pill ${currentStatus === 'frei' ? 'active-frei' : ''}" data-duty-change="frei">? Frei</button>
+            </div>
+            <button type="button" id="btnLoginViewLogout" class="btn btn-outline-danger">
+              Abmelden & Portal sperren
+            </button>
+          </div>
+        </div>
+      `;
+
+      sessionCard.querySelectorAll('[data-duty-change]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setMyDutyStatus(btn.getAttribute('data-duty-change'));
+        });
+      });
+
+      document.getElementById('btnLoginViewLogout')?.addEventListener('click', logoutUser);
+    } else {
+      sessionCard.innerHTML = `
+        <div class="session-empty-box">
+          <div class="session-empty-info">
+            <div class="session-empty-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="text-white font-semibold">Kein Mitarbeiter angemeldet</div>
+              <div class="text-muted text-sm">W?hle dein Profil unten aus, um deine Schicht zu starten.</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  if (staffGrid) {
+    let filtered = AppState.employees;
+    if (loginViewCurrentTeamFilter === 'admin') {
+      filtered = AppState.employees.filter(e => e.isAdmin || e.name.toLowerCase() === 'bella');
+    } else if (loginViewCurrentTeamFilter !== 'all') {
+      filtered = AppState.employees.filter(e => e.team === loginViewCurrentTeamFilter);
+    }
+
+    staffGrid.innerHTML = filtered.map(emp => {
+      const isCardAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
+      const isActiveUser = user && user.id === emp.id;
+      const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
+
+      const myTasks = AppState.tasks.filter(t => t.assignedTo === emp.id && t.status !== TASK_STATUSES.ERLEDIGT);
+      const myYouths = AppState.youths.filter(y => y.bezugsperson === emp.id || y.schulbegleitung === emp.id);
+
+      let statusDotColor = emp.status === 'anwesend' ? '#86efac' : emp.status === 'abwesend' ? '#fde68a' : '#9eb0c8';
+
+      return `
+        <div class="login-staff-card ${isActiveUser ? 'is-active-user' : ''} ${isCardAdmin ? 'is-admin-card' : ''}">
+          <div class="staff-card-header">
+            <div class="staff-card-avatar ${isCardAdmin ? 'admin-avatar' : ''}">
+              ${initials}
+              <div class="staff-avatar-status-dot" style="background-color: ${statusDotColor}"></div>
+            </div>
+            <div class="staff-card-meta">
+              <div class="staff-card-name">
+                ${escapeHtml(emp.name)}
+                ${isCardAdmin ? '<span title="App Admin">??</span>' : ''}
+              </div>
+              <div class="staff-card-role">${escapeHtml(emp.role)}</div>
+              <span class="staff-card-team-pill">${escapeHtml(emp.team)}</span>
+            </div>
+          </div>
+
+          <div class="staff-card-stats">
+            <div class="staff-stat-item">
+              <span class="staff-stat-label">Offene Aufgaben</span>
+              <span class="staff-stat-value">${myTasks.length}</span>
+            </div>
+            <div class="staff-stat-item">
+              <span class="staff-stat-label">Bezugsjugendliche</span>
+              <span class="staff-stat-value">${myYouths.length}</span>
+            </div>
+          </div>
+
+          <div class="staff-card-actions">
+            ${isActiveUser ? `
+              <button type="button" class="btn-staff-login is-active-btn" disabled>
+                ? Aktuell im Dienst
+              </button>
+            ` : `
+              <button type="button" class="btn-staff-login ${isCardAdmin ? 'btn-staff-admin' : ''}" data-login-as-emp="${emp.id}">
+                ${isCardAdmin ? '?? Als Bella (Admin) anmelden' : `Als ${escapeHtml(emp.name)} anmelden`}
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    staffGrid.querySelectorAll('[data-login-as-emp]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const empId = btn.getAttribute('data-login-as-emp');
+        const emp = AppState.employees.find(e => e.id === empId);
+        if (!emp) return;
+
+        if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
+          openLoginModal();
+        } else {
+          loginAsEmployee(emp.id, emp.name.toLowerCase());
+          switchView('dashboard');
+        }
+      });
+    });
+  }
+
+  if (manualSelect && manualSelect.options.length === 0) {
+    manualSelect.innerHTML = AppState.employees.map(emp => {
+      const isCardAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
+      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isCardAdmin ? ' ? ?? Admin' : ''})</option>`;
+    }).join('');
+  }
 }
 
 function renderDashboard() {
@@ -2596,7 +3103,7 @@ function setupEventListeners() {
   // Login Trigger from Warning Banner
   document.getElementById('btnBannerLogin')?.addEventListener('click', openLoginModal);
 
-  // Login Form Submission
+  // Login Form Submission (Modal)
   const formLogin = document.getElementById('formLogin');
   if (formLogin) {
     formLogin.addEventListener('submit', (e) => {
@@ -2605,7 +3112,7 @@ function setupEventListeners() {
       const pass = document.getElementById('loginPassword').value;
       const errorBox = document.getElementById('loginAuthError');
 
-      const result = loginAsBella(user, pass);
+      const result = loginAsEmployee(user, pass);
       if (result.success) {
         closeModal('modalLogin');
       } else {
@@ -2617,10 +3124,95 @@ function setupEventListeners() {
     });
   }
 
-  // Guest Continue Button in Login Modal
+  // Continue / Close Button in Login Modal
   document.getElementById('btnContinueAsGuest')?.addEventListener('click', () => {
-    logoutToMitarbeiter();
     closeModal('modalLogin');
+  });
+
+  // Gatekeeper Tab Switching
+  document.getElementById('btnGateTabSelect')?.addEventListener('click', switchToGateSelectTab);
+  document.getElementById('btnGateTabPassword')?.addEventListener('click', () => switchToGatePasswordTab());
+
+  // Gatekeeper Team Filter Pills
+  document.getElementById('gateFilterPills')?.addEventListener('click', (e) => {
+    const pill = e.target.closest('.gate-pill');
+    if (!pill) return;
+    document.querySelectorAll('#gateFilterPills .gate-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    gatekeeperCurrentTeamFilter = pill.getAttribute('data-gate-team') || 'all';
+    renderGatekeeperUI();
+  });
+
+  // Gatekeeper Form Submission
+  document.getElementById('formGateLogin')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const userVal = document.getElementById('gateSelectUser')?.value;
+    const passVal = document.getElementById('gateInputPassword')?.value;
+    const errorBox = document.getElementById('gateAuthError');
+
+    const result = loginAsEmployee(userVal, passVal);
+    if (!result.success) {
+      if (errorBox) {
+        errorBox.textContent = result.message;
+        errorBox.classList.remove('hidden');
+      }
+    } else {
+      if (errorBox) errorBox.classList.add('hidden');
+    }
+  });
+
+  // Modal Login Tab Switching
+  document.getElementById('tabBtnSelectStaff')?.addEventListener('click', () => {
+    document.getElementById('tabBtnSelectStaff')?.classList.add('active');
+    document.getElementById('tabBtnPasswordLogin')?.classList.remove('active');
+    document.getElementById('modalTabContentSelect')?.classList.remove('hidden');
+    document.getElementById('modalTabContentPassword')?.classList.add('hidden');
+  });
+
+  document.getElementById('tabBtnPasswordLogin')?.addEventListener('click', () => {
+    document.getElementById('tabBtnPasswordLogin')?.classList.add('active');
+    document.getElementById('tabBtnSelectStaff')?.classList.remove('active');
+    document.getElementById('modalTabContentPassword')?.classList.remove('hidden');
+    document.getElementById('modalTabContentSelect')?.classList.add('hidden');
+  });
+
+  // Manual Login Form on view-login
+  document.getElementById('formManualLogin')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const userVal = document.getElementById('manualLoginUsername')?.value;
+    const passVal = document.getElementById('manualLoginPassword')?.value;
+    const errorBox = document.getElementById('manualLoginError');
+
+    const result = loginAsEmployee(userVal, passVal);
+    if (!result.success) {
+      if (errorBox) {
+        errorBox.textContent = result.message;
+        errorBox.classList.remove('hidden');
+      }
+    } else {
+      if (errorBox) errorBox.classList.add('hidden');
+      switchView('dashboard');
+    }
+  });
+
+  // View Login Team Filter Tabs
+  document.getElementById('loginTeamTabs')?.addEventListener('click', (e) => {
+    const tab = e.target.closest('.login-team-tab');
+    if (!tab) return;
+    document.querySelectorAll('#loginTeamTabs .login-team-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loginViewCurrentTeamFilter = tab.getAttribute('data-login-team') || 'all';
+    renderLoginView();
+  });
+
+  // Login View Help Button
+  document.getElementById('btnViewLoginHelp')?.addEventListener('click', () => {
+    alert('Zugangsinformationen Heim Egerkingen:
+
+? Admin Bella: Benutzer "bella" / Passwort "bella" (oder "lebensfunke")
+? Alle Mitarbeitenden: Profil anklicken oder Vorname als Passwort verwenden.
+
+Das Portal ist gesch?tzt und erfordert immer eine Anmeldung.');
   });
 
   // Data Export & Import

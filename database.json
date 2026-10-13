@@ -5,84 +5,120 @@
       "name": "Bella",
       "role": "Schulpersonal & App-Administratorin",
       "team": "Schule & Bildung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "bella",
+      "isAdmin": true,
+      "initials": "BE"
     },
     {
       "id": "emp-102",
       "name": "Cigdem",
       "role": "Heimleitung",
       "team": "Heimleitung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "cigdem",
+      "isAdmin": false,
+      "initials": "CI"
     },
     {
       "id": "emp-103",
       "name": "Serdar",
       "role": "Heimleitung",
       "team": "Heimleitung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "serdar",
+      "isAdmin": false,
+      "initials": "SE"
     },
     {
       "id": "emp-104",
       "name": "Kimete",
       "role": "SV / Heimleitung",
       "team": "Heimleitung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "kimete",
+      "isAdmin": false,
+      "initials": "KI"
     },
     {
       "id": "emp-105",
       "name": "Sandra",
       "role": "Teamleitung",
       "team": "Teamleitung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "sandra",
+      "isAdmin": false,
+      "initials": "SA"
     },
     {
       "id": "emp-106",
       "name": "Kerstin",
       "role": "Betreuungspersonal",
       "team": "Betreuung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "kerstin",
+      "isAdmin": false,
+      "initials": "KE"
     },
     {
       "id": "emp-107",
       "name": "Oliver",
       "role": "Betreuungspersonal",
       "team": "Betreuung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "oliver",
+      "isAdmin": false,
+      "initials": "OL"
     },
     {
       "id": "emp-108",
       "name": "Samia",
       "role": "Betreuungspersonal",
       "team": "Betreuung",
-      "status": "abwesend"
+      "status": "abwesend",
+      "username": "samia",
+      "isAdmin": false,
+      "initials": "SA"
     },
     {
       "id": "emp-109",
       "name": "Laura",
       "role": "Betreuungspersonal",
       "team": "Betreuung",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "laura",
+      "isAdmin": false,
+      "initials": "LA"
     },
     {
       "id": "emp-110",
       "name": "Semi",
       "role": "Praktikant",
       "team": "Praktikum",
-      "status": "anwesend"
+      "status": "anwesend",
+      "username": "semi",
+      "isAdmin": false,
+      "initials": "SE"
     },
     {
       "id": "emp-111",
       "name": "Donika",
       "role": "Praktikantin",
       "team": "Praktikum",
-      "status": "frei"
+      "status": "frei",
+      "username": "donika",
+      "isAdmin": false,
+      "initials": "DO"
     },
     {
       "id": "emp-112",
       "name": "Steffi",
       "role": "Schulpersonal",
       "team": "Schule & Bildung",
-      "status": "frei"
+      "status": "frei",
+      "username": "steffi",
+      "isAdmin": false,
+      "initials": "ST"
     }
   ],
   "youths": [
@@ -347,10 +383,6 @@
       "type": "create"
     }
   ],
-  "currentUser": {
-    "username": "bella",
-    "displayName": "Bella",
-    "role": "admin"
-  },
+  "currentUser": null,
   "theme": "dark"
 }

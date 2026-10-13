@@ -19,6 +19,116 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- ======================================================== -->
+  <!-- FULLSCREEN GATEKEEPER LOGIN (NO LOGIN NO ACCESS)        -->
+  <!-- ======================================================== -->
+  <div id="gatekeeperLogin" class="gatekeeper-screen">
+    <div class="gatekeeper-wrapper">
+      
+      <!-- Brand & Header -->
+      <div class="gatekeeper-brand">
+        <div class="brand-logo lg gate-logo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2c1.5 3 4 5 4 8a4 4 0 0 1-8 0c0-3 2.5-5 4-8z"></path>
+            <circle cx="12" cy="18" r="3"></circle>
+          </svg>
+        </div>
+        <div class="gatekeeper-brand-text">
+          <h1 class="gatekeeper-title">LEBENSFUNKE</h1>
+          <div class="gatekeeper-subtitle">Heim Egerkingen · Kanzelstrasse 23</div>
+        </div>
+      </div>
+
+      <div class="gatekeeper-badge-bar">
+        <span class="gatekeeper-security-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Geschütztes Personalportal — Anmeldung erforderlich
+        </span>
+      </div>
+
+      <!-- Navigation Tabs: Schnellauswahl vs. Passwort-Login -->
+      <div class="gatekeeper-tabs">
+        <button type="button" class="gatekeeper-tab-btn active" id="btnGateTabSelect">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+          <span>Mitarbeitende Schnellauswahl (12)</span>
+        </button>
+        <button type="button" class="gatekeeper-tab-btn" id="btnGateTabPassword">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Klassischer Passwort-Login</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Mitarbeitende Schnellauswahl -->
+      <div id="gateTabContentSelect" class="gatekeeper-tab-content">
+        <!-- Team Filter Pills -->
+        <div class="gatekeeper-filter-pills" id="gateFilterPills">
+          <button class="gate-pill active" data-gate-team="all">Alle 12</button>
+          <button class="gate-pill" data-gate-team="admin">👑 App Admin (Bella)</button>
+          <button class="gate-pill" data-gate-team="Heimleitung">Heimleitung (3)</button>
+          <button class="gate-pill" data-gate-team="Teamleitung">Teamleitung (1)</button>
+          <button class="gate-pill" data-gate-team="Betreuung">Betreuung (4)</button>
+          <button class="gate-pill" data-gate-team="Praktikum">Praktikum (2)</button>
+          <button class="gate-pill" data-gate-team="Schule & Bildung">Schulpersonal (2)</button>
+        </div>
+
+        <p class="gatekeeper-instruction">Wähle dein Profil aus, um dich anzumelden und deine Schicht zu starten:</p>
+
+        <!-- Grid of 12 Employee Cards -->
+        <div id="gateStaffGrid" class="gatekeeper-staff-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Passwort-Login Form -->
+      <div id="gateTabContentPassword" class="gatekeeper-tab-content hidden">
+        <div class="gatekeeper-form-card">
+          <form id="formGateLogin" novalidate>
+            <div class="form-group">
+              <label for="gateSelectUser" class="form-label">Mitarbeitende auswählen</label>
+              <select id="gateSelectUser" class="form-control" required>
+                <!-- Populated dynamically via JS -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="gateInputPassword" class="form-label">Passwort / PIN</label>
+              <input type="password" id="gateInputPassword" class="form-control" placeholder="Passwort eingeben" required>
+            </div>
+
+            <div id="gateAuthError" class="login-auth-error hidden">
+              <span>Zugriff verweigert: Bitte Zugangsdaten prüfen.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block gate-submit-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              <span>Anmelden & Portal öffnen</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="gatekeeper-footer">
+        <span>Lebensfunke AG · Kanzelstrasse 23 · 4622 Egerkingen</span>
+        <span class="gate-hint">Standard-Passwörter: Bella = <code>bella</code> | Mitarbeitende = Vorname oder <code>lebensfunke</code></span>
+      </div>
+
+    </div>
+  </div>
+
   <!-- App Container -->
   <div id="app" class="app-layout">
 
@@ -195,6 +305,17 @@
                   <span id="badgeNavDamages" class="nav-badge nav-badge-red" title="Offene Schäden">0</span>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#login" class="nav-link" data-nav="login">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                  </svg>
+                  <span>Mitarbeiter-Login</span>
+                  <span id="badgeNavLoginStatus" class="nav-badge nav-badge-cyan" title="Aktueller Dienst">Bella</span>
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -259,6 +380,9 @@
               Zu den Schäden →
             </button>
           </div>
+
+          <!-- Personal Shift & Duty Cockpit for Logged-In Employee -->
+          <div id="dashShiftCockpit" class="dashboard-shift-cockpit"></div>
 
           <div class="view-header">
             <div>
@@ -800,6 +924,88 @@
 
         </section>
 
+        <!-- ========================================== -->
+        <!-- VIEW 6: MITARBEITER- & SCHICHT-LOGIN       -->
+        <!-- ========================================== -->
+        <section id="view-login" class="content-view">
+          
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Mitarbeiter- & Schicht-Portal</h1>
+              <p class="view-subtitle">Lebensfunke Heim Egerkingen · Wähle dein Profil für persönlichen Schichtzugriff & Aufgabenverwaltung</p>
+            </div>
+            <div class="view-actions">
+              <button id="btnViewLoginHelp" class="btn btn-outline" title="Zugangsinformationen anzeigen">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Zugangs-Info</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Session Banner -->
+          <div id="loginCurrentSessionCard" class="login-session-card"></div>
+
+          <!-- Team Filter Tabs -->
+          <div class="login-filter-bar">
+            <div class="login-team-tabs" id="loginTeamTabs">
+              <button class="login-team-tab active" data-login-team="all">Alle Mitarbeitende (12)</button>
+              <button class="login-team-tab" data-login-team="admin">👑 App Admin (Bella)</button>
+              <button class="login-team-tab" data-login-team="Heimleitung">Heimleitung (3)</button>
+              <button class="login-team-tab" data-login-team="Teamleitung">Teamleitung (1)</button>
+              <button class="login-team-tab" data-login-team="Betreuung">Betreuung (4)</button>
+              <button class="login-team-tab" data-login-team="Praktikum">Praktikum (2)</button>
+              <button class="login-team-tab" data-login-team="Schule & Bildung">Schulpersonal (2)</button>
+            </div>
+          </div>
+
+          <!-- Grid of 12 Employees for 1-Click Login -->
+          <div id="loginStaffGrid" class="login-staff-grid"></div>
+
+          <!-- Manual Password Login Accordion / Box -->
+          <div class="login-manual-box">
+            <div class="login-manual-header">
+              <div class="login-manual-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Klassischer Passwort-Login</span>
+              </div>
+              <span class="text-muted text-xs">Für direkte Anmeldung oder Admin-Verifikation</span>
+            </div>
+            <form id="formManualLogin" class="login-manual-form" novalidate>
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="manualLoginUsername" class="form-label">Mitarbeitende auswählen</label>
+                  <select id="manualLoginUsername" class="form-control" required>
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="manualLoginPassword" class="form-label">Passwort / PIN</label>
+                  <input type="password" id="manualLoginPassword" class="form-control" placeholder="Vorname oder lebensfunke" required>
+                </div>
+                <div class="form-group flex-auto login-submit-btn-wrapper">
+                  <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    <span>Anmelden</span>
+                  </button>
+                </div>
+              </div>
+              <div id="manualLoginError" class="login-auth-error hidden"></div>
+            </form>
+          </div>
+
+        </section>
+
       </main>
     </div>
 
@@ -807,9 +1013,9 @@
     <!-- MODALS & DIALOGS                           -->
     <!-- ========================================== -->
 
-    <!-- LOGIN MODAL (Bella Admin System) -->
+    <!-- LOGIN MODAL (Mitarbeiter & Admin System) -->
     <div id="modalLogin" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalLoginTitle">
-      <div class="modal-card modal-card-sm login-modal-card">
+      <div class="modal-card modal-card-md login-modal-card">
         <div class="modal-header">
           <div class="login-modal-header-brand">
             <div class="brand-logo sm">
@@ -819,58 +1025,89 @@
               </svg>
             </div>
             <div>
-              <h2 id="modalLoginTitle" class="modal-title">Admin Login</h2>
+              <h2 id="modalLoginTitle" class="modal-title">Mitarbeiter- & Schicht-Login</h2>
               <p class="login-sub">Lebensfunke Heim Egerkingen</p>
             </div>
           </div>
           <button type="button" class="btn-icon modal-close" data-close-modal="modalLogin" aria-label="Schließen">&times;</button>
         </div>
 
-        <div class="login-lead-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>Admin-Berechtigung: Nur <strong>Bella</strong> kann sich als Administratorin anmelden und Änderungen vornehmen.</span>
+        <!-- Modal Login Navigation Tabs -->
+        <div class="modal-nav-tabs">
+          <button type="button" id="tabBtnSelectStaff" class="modal-nav-tab active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <span>Mitarbeitende wählen (12)</span>
+          </button>
+          <button type="button" id="tabBtnPasswordLogin" class="modal-nav-tab">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Passwort-Login</span>
+          </button>
         </div>
 
-        <form id="formLogin" novalidate>
-          <div class="form-group">
-            <label for="loginUsername" class="form-label">Benutzername</label>
-            <input type="text" id="loginUsername" class="form-control" placeholder="z. B. bella" autocomplete="username" required>
-            <span class="form-error" id="loginUsernameError"></span>
+        <!-- Tab Content 1: Employee Select List -->
+        <div id="modalTabContentSelect" class="modal-tab-content">
+          <p class="modal-tab-instruction">Wähle dein Profil für deine Schicht:</p>
+          <div id="modalStaffSelectList" class="modal-staff-select-list">
+            <!-- Dynamically populated via renderModalStaffList() -->
+          </div>
+        </div>
+
+        <!-- Tab Content 2: Password Form -->
+        <div id="modalTabContentPassword" class="modal-tab-content hidden">
+          <div class="login-lead-box" id="modalLoginLeadBox">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span id="modalLoginLeadText">Admin-Berechtigung: Nur <strong>Bella</strong> kann als Administratorin Änderungen durchführen.</span>
           </div>
 
-          <div class="form-group">
-            <label for="loginPassword" class="form-label">Passwort</label>
-            <input type="password" id="loginPassword" class="form-control" placeholder="Passwort eingeben" autocomplete="current-password" required>
-            <span class="form-error" id="loginPasswordError"></span>
-          </div>
+          <form id="formLogin" novalidate>
+            <div class="form-group">
+              <label for="loginUsername" class="form-label">Benutzername / Name</label>
+              <input type="text" id="loginUsername" class="form-control" placeholder="z. B. bella oder oliver" autocomplete="username" required>
+              <span class="form-error" id="loginUsernameError"></span>
+            </div>
 
-          <div id="loginAuthError" class="login-auth-error hidden">
-            <span>Zugriff verweigert: Falscher Benutzername oder Passwort. Nur <strong>Bella</strong> hat Admin-Rechte.</span>
-          </div>
+            <div class="form-group">
+              <label for="loginPassword" class="form-label">Passwort</label>
+              <input type="password" id="loginPassword" class="form-control" placeholder="Passwort eingeben" autocomplete="current-password" required>
+              <span class="form-error" id="loginPasswordError"></span>
+            </div>
 
-          <!-- Quick Hint for testing / convenience -->
-          <div class="login-credentials-hint">
-            <div class="hint-title">Zugangsinformation:</div>
-            <div class="hint-row">Benutzer: <code>bella</code> | Passwort: <code>bella</code> (oder <code>lebensfunke</code>)</div>
-          </div>
+            <div id="loginAuthError" class="login-auth-error hidden">
+              <span>Zugriff verweigert: Bitte Zugangsdaten prüfen.</span>
+            </div>
 
-          <div class="login-modal-buttons">
-            <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-block">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                <polyline points="10 17 15 12 10 7"></polyline>
-                <line x1="15" y1="12" x2="3" y2="12"></line>
-              </svg>
-              <span>Als Bella (Admin) anmelden</span>
-            </button>
-            <button type="button" id="btnContinueAsGuest" class="btn btn-outline btn-block">
-              <span>Als Mitarbeiter fortfahren (Lesemodus)</span>
-            </button>
-          </div>
-        </form>
+            <div class="login-credentials-hint">
+              <div class="hint-title">Zugangsinformation:</div>
+              <div class="hint-row">Admin: <code>bella</code> (Passwort: <code>bella</code>) | Mitarbeitende: <code>vorname</code> oder <code>lebensfunke</code></div>
+            </div>
+
+            <div class="login-modal-buttons">
+              <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-block">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Anmelden</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-login-footer">
+          <button type="button" id="btnContinueAsGuest" class="btn btn-outline btn-block">
+            <span>Als Mitarbeiter fortfahren (Lesemodus)</span>
+          </button>
+        </div>
       </div>
     </div>
 
