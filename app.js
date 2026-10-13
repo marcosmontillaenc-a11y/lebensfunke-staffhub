@@ -785,7 +785,6 @@ function openLoginModal() {
   if (userInput) userInput.value = isBellaAdmin() ? 'bella' : (AppState.currentUser?.displayName || 'bella');
   if (passInput) passInput.value = '';
 
-  renderModalStaffList();
 
   if (modal) modal.classList.remove('hidden');
   if (passInput) passInput.focus();
@@ -817,158 +816,14 @@ function checkAccessGate() {
   }
 }
 
-let gatekeeperCurrentTeamFilter = 'all';
-
 function renderGatekeeperUI() {
-  const staffGrid = document.getElementById('gateStaffGrid');
   const selectUser = document.getElementById('gateSelectUser');
-  if (!staffGrid) return;
-
-  let filtered = AppState.employees;
-  if (gatekeeperCurrentTeamFilter === 'admin') {
-    filtered = AppState.employees.filter(e => e.isAdmin || e.name.toLowerCase() === 'bella');
-  } else if (gatekeeperCurrentTeamFilter !== 'all') {
-    filtered = AppState.employees.filter(e => e.team === gatekeeperCurrentTeamFilter);
-  }
-
-  staffGrid.innerHTML = filtered.map(emp => {
-    const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
-    const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
-
-    let statusLabel = 'Frei';
-    let statusClass = 'text-muted';
-    if (emp.status === 'anwesend') {
-      statusLabel = 'Im Dienst';
-      statusClass = 'text-success';
-    } else if (emp.status === 'abwesend') {
-      statusLabel = 'Pause';
-      statusClass = 'text-warning';
-    }
-
-    return `
-      <div class="gate-staff-card ${isAdmin ? 'admin-card' : ''}" data-gate-emp-id="${emp.id}">
-        <div class="gate-card-top">
-          <div class="gate-card-avatar ${isAdmin ? 'admin-avatar' : ''}">
-            ${initials}
-          </div>
-          <div class="gate-card-info">
-            <div class="gate-card-name">
-              ${escapeHtml(emp.name)}
-              ${isAdmin ? '??' : ''}
-            </div>
-            <div class="gate-card-role">${escapeHtml(emp.role)}</div>
-            <div class="gate-card-team">${escapeHtml(emp.team)} ? <span class="${statusClass}">${statusLabel}</span></div>
-          </div>
-        </div>
-        <button type="button" class="gate-btn-login ${isAdmin ? 'btn-staff-admin' : ''}">
-          <span>${isAdmin ? '?? Als Bella (Admin) anmelden' : `Als ${escapeHtml(emp.name)} anmelden`}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-    `;
-  }).join('');
-
-  staffGrid.onclick = (e) => {
-    const card = e.target.closest('.gate-staff-card');
-    if (!card) return;
-    const empId = card.getAttribute('data-gate-emp-id');
-    const emp = AppState.employees.find(el => el.id === empId);
-    if (!emp) return;
-
-    if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-      openLoginModal();
-      document.getElementById('tabBtnPasswordLogin')?.click();
-      const userInput = document.getElementById('loginUsername');
-      const passInput = document.getElementById('loginPassword');
-      if (userInput) userInput.value = 'bella';
-      if (passInput) {
-        passInput.value = '';
-        setTimeout(() => passInput.focus(), 150);
-      }
-    } else {
-      loginAsEmployee(emp.id);
-    }
-  };
-
   if (selectUser && selectUser.options.length === 0) {
     selectUser.innerHTML = AppState.employees.map(emp => {
       const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
-      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isAdmin ? ' ? ?? Admin' : ''})</option>`;
+      return `<option value="${emp.id}">${escapeHtml(emp.name)} (${escapeHtml(emp.team)}${isAdmin ? ' • 👑 Admin' : ''})</option>`;
     }).join('');
   }
-}
-
-function switchToGatePasswordTab(selectedUsername = null) {
-  const tabSelectBtn = document.getElementById('btnGateTabSelect');
-  const tabPassBtn = document.getElementById('btnGateTabPassword');
-  const contentSelect = document.getElementById('gateTabContentSelect');
-  const contentPass = document.getElementById('gateTabContentPassword');
-  const userSelect = document.getElementById('gateSelectUser');
-  const passInput = document.getElementById('gateInputPassword');
-
-  if (tabSelectBtn) tabSelectBtn.classList.remove('active');
-  if (tabPassBtn) tabPassBtn.classList.add('active');
-  if (contentSelect) contentSelect.classList.add('hidden');
-  if (contentPass) contentPass.classList.remove('hidden');
-
-  if (selectedUsername && userSelect) {
-    const target = AppState.employees.find(e => e.name.toLowerCase() === selectedUsername.toLowerCase() || e.id === selectedUsername);
-    if (target) userSelect.value = target.id;
-  }
-  if (passInput) passInput.focus();
-}
-
-function switchToGateSelectTab() {
-  const tabSelectBtn = document.getElementById('btnGateTabSelect');
-  const tabPassBtn = document.getElementById('btnGateTabPassword');
-  const contentSelect = document.getElementById('gateTabContentSelect');
-  const contentPass = document.getElementById('gateTabContentPassword');
-
-  if (tabSelectBtn) tabSelectBtn.classList.add('active');
-  if (tabPassBtn) tabPassBtn.classList.remove('active');
-  if (contentSelect) contentSelect.classList.remove('hidden');
-  if (contentPass) contentPass.classList.add('hidden');
-}
-
-function renderModalStaffList() {
-  const container = document.getElementById('modalStaffSelectList');
-  if (!container) return;
-
-  container.innerHTML = AppState.employees.map(emp => {
-    const isAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
-    const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
-
-    return `
-      <button type="button" class="modal-staff-item-btn ${isAdmin ? 'is-admin-item' : ''}" data-modal-emp-id="${emp.id}">
-        <div class="modal-staff-item-avatar ${isAdmin ? 'admin-avatar' : ''}">${initials}</div>
-        <div class="modal-staff-item-text">
-          <span class="modal-staff-item-name">${escapeHtml(emp.name)} ${isAdmin ? '??' : ''}</span>
-          <span class="modal-staff-item-role">${escapeHtml(emp.team)}</span>
-        </div>
-      </button>
-    `;
-  }).join('');
-
-  container.querySelectorAll('.modal-staff-item-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const empId = btn.getAttribute('data-modal-emp-id');
-      const emp = AppState.employees.find(e => e.id === empId);
-      if (!emp) return;
-
-      if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-        document.getElementById('tabBtnPasswordLogin')?.click();
-        const userInput = document.getElementById('loginUsername');
-        const passInput = document.getElementById('loginPassword');
-        if (userInput) userInput.value = 'bella';
-        if (passInput) passInput.focus();
-      } else {
-        loginAsEmployee(emp.id, emp.name.toLowerCase());
-        closeModal('modalLogin');
-      }
-    });
-  });
 }
 
 // ============================================================================
@@ -1776,90 +1631,6 @@ function renderLoginView() {
     }
   }
 
-  if (staffGrid) {
-    let filtered = AppState.employees;
-    if (loginViewCurrentTeamFilter === 'admin') {
-      filtered = AppState.employees.filter(e => e.isAdmin || e.name.toLowerCase() === 'bella');
-    } else if (loginViewCurrentTeamFilter !== 'all') {
-      filtered = AppState.employees.filter(e => e.team === loginViewCurrentTeamFilter);
-    }
-
-    staffGrid.innerHTML = filtered.map(emp => {
-      const isCardAdmin = emp.isAdmin || emp.name.toLowerCase() === 'bella';
-      const isActiveUser = user && user.id === emp.id;
-      const initials = emp.name ? emp.name.substring(0, 2).toUpperCase() : 'LF';
-
-      const myTasks = AppState.tasks.filter(t => t.assignedTo === emp.id && t.status !== TASK_STATUSES.ERLEDIGT);
-      const myYouths = AppState.youths.filter(y => y.bezugsperson === emp.id || y.schulbegleitung === emp.id);
-
-      let statusDotColor = emp.status === 'anwesend' ? '#86efac' : emp.status === 'abwesend' ? '#fde68a' : '#9eb0c8';
-
-      return `
-        <div class="login-staff-card ${isActiveUser ? 'is-active-user' : ''} ${isCardAdmin ? 'is-admin-card' : ''}">
-          <div class="staff-card-header">
-            <div class="staff-card-avatar ${isCardAdmin ? 'admin-avatar' : ''}">
-              ${initials}
-              <div class="staff-avatar-status-dot" style="background-color: ${statusDotColor}"></div>
-            </div>
-            <div class="staff-card-meta">
-              <div class="staff-card-name">
-                ${escapeHtml(emp.name)}
-                ${isCardAdmin ? '<span title="App Admin">??</span>' : ''}
-              </div>
-              <div class="staff-card-role">${escapeHtml(emp.role)}</div>
-              <span class="staff-card-team-pill">${escapeHtml(emp.team)}</span>
-            </div>
-          </div>
-
-          <div class="staff-card-stats">
-            <div class="staff-stat-item">
-              <span class="staff-stat-label">Offene Aufgaben</span>
-              <span class="staff-stat-value">${myTasks.length}</span>
-            </div>
-            <div class="staff-stat-item">
-              <span class="staff-stat-label">Bezugsjugendliche</span>
-              <span class="staff-stat-value">${myYouths.length}</span>
-            </div>
-          </div>
-
-          <div class="staff-card-actions">
-            ${isActiveUser ? `
-              <button type="button" class="btn-staff-login is-active-btn" disabled>
-                ? Aktuell im Dienst
-              </button>
-            ` : `
-              <button type="button" class="btn-staff-login ${isCardAdmin ? 'btn-staff-admin' : ''}" data-login-as-emp="${emp.id}">
-                ${isCardAdmin ? '?? Als Bella (Admin) anmelden' : `Als ${escapeHtml(emp.name)} anmelden`}
-              </button>
-            `}
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    staffGrid.querySelectorAll('[data-login-as-emp]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const empId = btn.getAttribute('data-login-as-emp');
-        const emp = AppState.employees.find(el => el.id === empId);
-        if (!emp) return;
-
-        if (emp.isAdmin || emp.name.toLowerCase() === 'bella') {
-          openLoginModal();
-          document.getElementById('tabBtnPasswordLogin')?.click();
-          const userInput = document.getElementById('loginUsername');
-          const passInput = document.getElementById('loginPassword');
-          if (userInput) userInput.value = 'bella';
-          if (passInput) {
-            passInput.value = '';
-            setTimeout(() => passInput.focus(), 150);
-          }
-        } else {
-          loginAsEmployee(emp.id);
-          switchView('dashboard');
-        }
-      });
-    });
-  }
 
   if (manualSelect && manualSelect.options.length === 0) {
     manualSelect.innerHTML = AppState.employees.map(emp => {
@@ -3145,19 +2916,7 @@ function setupEventListeners() {
     closeModal('modalLogin');
   });
 
-  // Gatekeeper Tab Switching
-  document.getElementById('btnGateTabSelect')?.addEventListener('click', switchToGateSelectTab);
-  document.getElementById('btnGateTabPassword')?.addEventListener('click', () => switchToGatePasswordTab());
 
-  // Gatekeeper Team Filter Pills
-  document.getElementById('gateFilterPills')?.addEventListener('click', (e) => {
-    const pill = e.target.closest('.gate-pill');
-    if (!pill) return;
-    document.querySelectorAll('#gateFilterPills .gate-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    gatekeeperCurrentTeamFilter = pill.getAttribute('data-gate-team') || 'all';
-    renderGatekeeperUI();
-  });
 
   // Gatekeeper Form Submission
   document.getElementById('formGateLogin')?.addEventListener('submit', (e) => {
@@ -3177,20 +2936,6 @@ function setupEventListeners() {
     }
   });
 
-  // Modal Login Tab Switching
-  document.getElementById('tabBtnSelectStaff')?.addEventListener('click', () => {
-    document.getElementById('tabBtnSelectStaff')?.classList.add('active');
-    document.getElementById('tabBtnPasswordLogin')?.classList.remove('active');
-    document.getElementById('modalTabContentSelect')?.classList.remove('hidden');
-    document.getElementById('modalTabContentPassword')?.classList.add('hidden');
-  });
-
-  document.getElementById('tabBtnPasswordLogin')?.addEventListener('click', () => {
-    document.getElementById('tabBtnPasswordLogin')?.classList.add('active');
-    document.getElementById('tabBtnSelectStaff')?.classList.remove('active');
-    document.getElementById('modalTabContentPassword')?.classList.remove('hidden');
-    document.getElementById('modalTabContentSelect')?.classList.add('hidden');
-  });
 
   // Manual Login Form on view-login
   document.getElementById('formManualLogin')?.addEventListener('submit', (e) => {
@@ -3211,17 +2956,7 @@ function setupEventListeners() {
     }
   });
 
-  // View Login Team Filter Tabs
-  document.getElementById('loginTeamTabs')?.addEventListener('click', (e) => {
-    const tab = e.target.closest('.login-team-tab');
-    if (!tab) return;
-    document.querySelectorAll('#loginTeamTabs .login-team-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    loginViewCurrentTeamFilter = tab.getAttribute('data-login-team') || 'all';
-    renderLoginView();
-  });
-
-  // Login View Help Button
+// Login View Help Button
   document.getElementById('btnViewLoginHelp')?.addEventListener('click', () => {
     alert('Zugangsinformationen Heim Egerkingen:\n\nBitte wenden Sie sich für Ihre persönlichen Zugangsdaten an die Heimleitung oder die Administration.\n\nDas Portal ist geschützt und erfordert eine gültige Schicht-Anmeldung.');
   });

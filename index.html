@@ -49,75 +49,39 @@
         </span>
       </div>
 
-      <!-- Navigation Tabs: Schnellauswahl vs. Passwort-Login -->
-      <div class="gatekeeper-tabs">
-        <button type="button" class="gatekeeper-tab-btn active" id="btnGateTabSelect">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-          </svg>
-          <span>Mitarbeitende Schnellauswahl (12)</span>
-        </button>
-        <button type="button" class="gatekeeper-tab-btn" id="btnGateTabPassword">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>Klassischer Passwort-Login</span>
-        </button>
-      </div>
-
-      <!-- Tab 1: Mitarbeitende Schnellauswahl -->
-      <div id="gateTabContentSelect" class="gatekeeper-tab-content">
-        <!-- Team Filter Pills -->
-        <div class="gatekeeper-filter-pills" id="gateFilterPills">
-          <button class="gate-pill active" data-gate-team="all">Alle 12</button>
-          <button class="gate-pill" data-gate-team="admin">👑 App Admin (Bella)</button>
-          <button class="gate-pill" data-gate-team="Heimleitung">Heimleitung (3)</button>
-          <button class="gate-pill" data-gate-team="Teamleitung">Teamleitung (1)</button>
-          <button class="gate-pill" data-gate-team="Betreuung">Betreuung (4)</button>
-          <button class="gate-pill" data-gate-team="Praktikum">Praktikum (2)</button>
-          <button class="gate-pill" data-gate-team="Schule & Bildung">Schulpersonal (2)</button>
+      <!-- Direkter Passwort-Login (Schnellauswahl entfernt) -->
+      <div class="gatekeeper-form-card">
+        <div class="gatekeeper-form-header">
+          <h2 class="gate-login-heading">Personal- & Schicht-Login</h2>
+          <p class="gate-login-sub">Wähle dein Profil und gib dein persönliches Passwort ein:</p>
         </div>
 
-        <p class="gatekeeper-instruction">Wähle dein Profil aus, um dich anzumelden und deine Schicht zu starten:</p>
+        <form id="formGateLogin" novalidate>
+          <div class="form-group">
+            <label for="gateSelectUser" class="form-label">Mitarbeitende auswählen</label>
+            <select id="gateSelectUser" class="form-control" required>
+              <!-- Populated dynamically via JS -->
+            </select>
+          </div>
 
-        <!-- Grid of 12 Employee Cards -->
-        <div id="gateStaffGrid" class="gatekeeper-staff-grid">
-          <!-- Populated dynamically via JS -->
-        </div>
-      </div>
+          <div class="form-group">
+            <label for="gateInputPassword" class="form-label">Passwort / PIN</label>
+            <input type="password" id="gateInputPassword" class="form-control" placeholder="Passwort eingeben" required autocomplete="current-password">
+          </div>
 
-      <!-- Tab 2: Passwort-Login Form -->
-      <div id="gateTabContentPassword" class="gatekeeper-tab-content hidden">
-        <div class="gatekeeper-form-card">
-          <form id="formGateLogin" novalidate>
-            <div class="form-group">
-              <label for="gateSelectUser" class="form-label">Mitarbeitende auswählen</label>
-              <select id="gateSelectUser" class="form-control" required>
-                <!-- Populated dynamically via JS -->
-              </select>
-            </div>
+          <div id="gateAuthError" class="login-auth-error hidden">
+            <span>Zugriff verweigert: Bitte Zugangsdaten prüfen.</span>
+          </div>
 
-            <div class="form-group">
-              <label for="gateInputPassword" class="form-label">Passwort / PIN</label>
-              <input type="password" id="gateInputPassword" class="form-control" placeholder="Passwort eingeben">
-            </div>
-
-            <div id="gateAuthError" class="login-auth-error hidden">
-              <span>Zugriff verweigert: Bitte Zugangsdaten prüfen.</span>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block gate-submit-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                <polyline points="10 17 15 12 10 7"></polyline>
-                <line x1="15" y1="12" x2="3" y2="12"></line>
-              </svg>
-              <span>Anmelden & Portal öffnen</span>
-            </button>
-          </form>
-        </div>
+          <button type="submit" class="btn btn-primary btn-block gate-submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Anmelden & Portal öffnen</span>
+          </button>
+        </form>
       </div>
 
       <!-- Footer Info -->
@@ -948,21 +912,6 @@
           <!-- Active Session Banner -->
           <div id="loginCurrentSessionCard" class="login-session-card"></div>
 
-          <!-- Team Filter Tabs -->
-          <div class="login-filter-bar">
-            <div class="login-team-tabs" id="loginTeamTabs">
-              <button class="login-team-tab active" data-login-team="all">Alle Mitarbeitende (12)</button>
-              <button class="login-team-tab" data-login-team="admin">👑 App Admin (Bella)</button>
-              <button class="login-team-tab" data-login-team="Heimleitung">Heimleitung (3)</button>
-              <button class="login-team-tab" data-login-team="Teamleitung">Teamleitung (1)</button>
-              <button class="login-team-tab" data-login-team="Betreuung">Betreuung (4)</button>
-              <button class="login-team-tab" data-login-team="Praktikum">Praktikum (2)</button>
-              <button class="login-team-tab" data-login-team="Schule & Bildung">Schulpersonal (2)</button>
-            </div>
-          </div>
-
-          <!-- Grid of 12 Employees for 1-Click Login -->
-          <div id="loginStaffGrid" class="login-staff-grid"></div>
 
           <!-- Manual Password Login Accordion / Box -->
           <div class="login-manual-box">
@@ -1031,34 +980,8 @@
           <button type="button" class="btn-icon modal-close" data-close-modal="modalLogin" aria-label="Schließen">&times;</button>
         </div>
 
-        <!-- Modal Login Navigation Tabs -->
-        <div class="modal-nav-tabs">
-          <button type="button" id="tabBtnSelectStaff" class="modal-nav-tab active">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-            </svg>
-            <span>Mitarbeitende wählen (12)</span>
-          </button>
-          <button type="button" id="tabBtnPasswordLogin" class="modal-nav-tab">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            <span>Passwort-Login</span>
-          </button>
-        </div>
-
-        <!-- Tab Content 1: Employee Select List -->
-        <div id="modalTabContentSelect" class="modal-tab-content">
-          <p class="modal-tab-instruction">Wähle dein Profil für deine Schicht:</p>
-          <div id="modalStaffSelectList" class="modal-staff-select-list">
-            <!-- Dynamically populated via renderModalStaffList() -->
-          </div>
-        </div>
-
-        <!-- Tab Content 2: Password Form -->
-        <div id="modalTabContentPassword" class="modal-tab-content hidden">
+        <!-- Direct Password Form (Schnellauswahl entfernt) -->
+        <div id="modalTabContentPassword" class="modal-tab-content">
           <div class="login-lead-box" id="modalLoginLeadBox">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -1095,12 +1018,6 @@
               </button>
             </div>
           </form>
-        </div>
-
-        <div class="modal-login-footer">
-          <button type="button" id="btnContinueAsGuest" class="btn btn-outline btn-block">
-            <span>Als Mitarbeiter fortfahren (Lesemodus)</span>
-          </button>
         </div>
       </div>
     </div>

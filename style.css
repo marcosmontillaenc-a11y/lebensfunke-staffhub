@@ -3272,8 +3272,25 @@ ul {
   background: var(--bg-card);
   border: 1px solid var(--border-panel);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: 2rem 1.75rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.gatekeeper-form-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.gate-login-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.35rem;
+}
+
+.gate-login-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .gate-submit-btn {
