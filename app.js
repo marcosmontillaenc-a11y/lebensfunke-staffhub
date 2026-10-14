@@ -2292,60 +2292,193 @@ function getWeekNumber(date = new Date()) {
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
-function matchEmployeeByName(rawStr) {
-  if (!rawStr || typeof rawStr !== 'string') return null;
-  const s = rawStr.trim().toLowerCase();
-  if (!s || s.length < 2) return null;
+const EMPLOYEE_ALIASES = {
+  'emp-101': ['bella', 'isabella', 'montilla', 'be', 'b. montilla', 'montilla b.'],
+  'emp-102': ['cigdem', 'çiğdem', 'hoxha', 'ci', 'c. hoxha', 'hoxha c.', 'ç. hoxha'],
+  'emp-103': ['serdar', 'yilmaz', 'se', 's. yilmaz', 'yilmaz s.', 'serd'],
+  'emp-104': ['kimete', 'krasniqi', 'ki', 'k. krasniqi', 'krasniqi k.', 'kime'],
+  'emp-105': ['sandra', 'schneider', 'sa', 's. schneider', 'schneider s.', 'sand'],
+  'emp-106': ['kerstin', 'meier', 'ke', 'k. meier', 'meier k.', 'kers'],
+  'emp-107': ['oliver', 'oli', 'müller', 'mueller', 'ol', 'o. müller', 'müller o.'],
+  'emp-108': ['samia', 'mansour', 'sm', 'sam', 's. mansour', 'mansour s.', 'sami'],
+  'emp-109': ['laura', 'fischer', 'la', 'l. fischer', 'fischer l.', 'lau'],
+  'emp-110': ['semi', 'semir', 'aliu', 'sem', 's. aliu', 'aliu s.'],
+  'emp-111': ['donika', 'dori', 'doruntina', 'gashi', 'do', 'dn', 'd. gashi', 'gashi d.'],
+  'emp-112': ['steffi', 'stefanie', 'steffie', 'stephanie', 'schmid', 'st', 's. schmid', 'schmid s.']
+};
 
+function matchEmployeeByName(rawVal) {
+  if (rawVal === null || rawVal === undefined) return null;
+  const rawStr = String(rawVal).trim();
+  if (rawStr.length < 2) return null;
+
+  // Clean string: lower, remove punctuation, prefixes like Herr/Frau
+  const clean = rawStr.toLowerCase()
+    .replace(/^(herr|frau|hr\.|fr\.)\s+/i, '')
+    .replace(/[^\w\sáäöüéèàç-]/gi, ' ')
+    .trim();
+
+  if (!clean || clean.length < 2) return null;
+
+  // 1. Direct name match
   for (const emp of AppState.employees) {
     const eName = emp.name.toLowerCase();
-    const eInit = emp.initials ? emp.initials.toLowerCase() : '';
-    if (s === eName || s.includes(eName) || (eInit && s === eInit)) {
+    if (clean === eName || clean.split(/\s+/).includes(eName)) {
       return emp;
     }
   }
 
-  if (s.includes('dori')) return AppState.employees.find(e => e.name === 'Donika') || null;
-  if (s.includes('oli')) return AppState.employees.find(e => e.name === 'Oliver') || null;
-  if (s.includes('stef')) return AppState.employees.find(e => e.name === 'Steffi') || null;
-  if (s.includes('cigdem') || s.includes('çiğdem')) return AppState.employees.find(e => e.name === 'Cigdem') || null;
+  // 2. Alias match (first name, surname, initials)
+  for (const [empId, aliases] of Object.entries(EMPLOYEE_ALIASES)) {
+    for (const alias of aliases) {
+      if (clean === alias || clean.split(/\s+/).includes(alias)) {
+        const found = AppState.employees.find(e => e.id === empId);
+        if (found) return found;
+      }
+    }
+  }
+
+  // 3. Substring match
+  for (const emp of AppState.employees) {
+    const eName = emp.name.toLowerCase();
+    if (clean.includes(eName) && eName.length >= 3) {
+      return emp;
+    }
+  }
 
   return null;
 }
 
-function normalizeShiftCode(rawStr) {
-  if (!rawStr) return SHIFT_TYPES.FREI;
-  const s = String(rawStr).trim().toUpperCase();
+const NON_SHIFT_WORDS = new Set([
+  'MITARBEITENDE', 'MITARBEITER', 'NAME', 'VORNAME', 'NACHNAME',
+  'TEAM', 'FUNKTION', 'ROLLE', 'PENSUM', 'SOLL', 'IST', 'SALDO',
+  'HEIMLEITUNG', 'TEAMLEITUNG', 'BETREUUNG', 'SCHULE', 'BILDUNG', 'PRAKTIKUM',
+  'SCHULPERSONAL', 'ADMIN', 'ADMINISTRATOR', 'SOZIALPÄDAGOGIK', 'TOTAL', 'SUMME', 'WOCHE', 'KW'
+]);
 
-  if (s === 'FD' || s === 'F' || s.includes('FRÜH') || s.includes('FRUEH') || s.includes('MORGEN')) {
-    return SHIFT_TYPES.FD;
-  }
-  if (s === 'SD' || s === 'S' || s.includes('SPÄT') || s.includes('SPAET') || s.includes('ABEND')) {
-    return SHIFT_TYPES.SD;
-  }
-  if (s === 'ND' || s === 'N' || s.includes('NACHT') || s === 'NW') {
-    return SHIFT_TYPES.ND;
-  }
-  if (s === 'TD' || s === 'T' || s.includes('TAG') || s === 'ZD') {
-    return SHIFT_TYPES.TD;
-  }
-  if (s === 'PIK' || s === 'P' || s.includes('PIKETT') || s.includes('BEREIT') || s.includes('24H')) {
-    return SHIFT_TYPES.PIK;
-  }
-  if (s === 'SCH' || s.includes('SCHUL')) {
-    return SHIFT_TYPES.SCH;
-  }
-  if (s === 'U' || s.includes('URLAUB') || s.includes('FERIEN') || s === 'FER') {
-    return SHIFT_TYPES.URLAUB;
-  }
-  if (s === 'K' || s.includes('KRANK')) {
-    return SHIFT_TYPES.KRANK;
-  }
-  if (s === 'FREI' || s === 'OFF' || s === 'X' || s === '-' || s === '/' || s.includes('RUHE') || s === '') {
+function normalizeShiftCode(rawVal) {
+  if (rawVal === null || rawVal === undefined) return SHIFT_TYPES.FREI;
+  const s = String(rawVal).trim().toUpperCase();
+  if (!s || s === '-' || s === '/' || s === 'X' || s === 'OFF' || s === 'FREI' || s === 'RUHE' || s === 'RUHETAG') {
     return SHIFT_TYPES.FREI;
   }
 
-  return { code: s.substring(0, 4), label: s, time: 'Dienst', badgeClass: 'shift-badge-td' };
+  // Filter out table metadata columns (Team, Role, Pensum, Hours) so they are not mistaken for shifts
+  if (NON_SHIFT_WORDS.has(s) || s.includes('LEITUNG') || s.includes('BETREUUNG') || s.includes('PERSONAL')) {
+    return null;
+  }
+  if (/^\d{1,3}(\.\d+)?%?$/.test(s) && !s.includes(':') && !s.includes('.')) {
+    return null;
+  }
+
+  // Standard Shift Codes & Sub-Shifts (e.g. F1, S2, ND1)
+  if (s === 'FD' || s === 'F' || s === 'F1' || s === 'F2' || s === 'FD1' || s === 'FD2') return SHIFT_TYPES.FD;
+  if (s === 'SD' || s === 'S' || s === 'S1' || s === 'S2' || s === 'SD1' || s === 'SD2') return SHIFT_TYPES.SD;
+  if (s === 'ND' || s === 'N' || s === 'N1' || s === 'N2' || s === 'ND1' || s === 'ND2' || s === 'NW') return SHIFT_TYPES.ND;
+  if (s === 'TD' || s === 'T' || s === 'T1' || s === 'T2' || s === 'TD1' || s === 'TD2' || s === 'ZD') return SHIFT_TYPES.TD;
+  if (s === 'PIK' || s === 'P' || s === 'P1' || s === 'P2' || s === 'PIKETT' || s.includes('BEREIT') || s === '24H') return SHIFT_TYPES.PIK;
+  if (s === 'SCH' || s === 'SCHULE' || s.includes('SCHUL') || s === 'WB' || s.includes('KURS')) return SHIFT_TYPES.SCH;
+  if (s === 'U' || s === 'URLAUB' || s === 'FERIEN' || s === 'FER' || s === 'FE') return SHIFT_TYPES.URLAUB;
+  if (s === 'K' || s === 'KRANK' || s === 'AU' || s === 'UNFALL' || s === 'ARZT') return SHIFT_TYPES.KRANK;
+  if (s === 'KOMP' || s === 'KO' || s === 'WE' || s === 'WOCHENENDE' || s === 'KOMPENSATION') return SHIFT_TYPES.FREI;
+
+  // Words matching
+  if (s.includes('FRÜH') || s.includes('FRUEH') || s.includes('MORGEN')) return SHIFT_TYPES.FD;
+  if (s.includes('SPÄT') || s.includes('SPAET') || s.includes('ABEND')) return SHIFT_TYPES.SD;
+  if (s.includes('NACHT')) return SHIFT_TYPES.ND;
+  if (s.includes('TAG') || s.includes('BÜRO') || s.includes('BUERO')) return SHIFT_TYPES.TD;
+  if (s.includes('URLAUB') || s.includes('FERIEN')) return SHIFT_TYPES.URLAUB;
+  if (s.includes('KRANK')) return SHIFT_TYPES.KRANK;
+
+  // Time ranges: e.g. '06:30 - 15:30', '14:00-22:30', '22:00 - 07:00', '08:30-17:00'
+  const timeMatch = s.match(/(\d{1,2})[:.](\d{2})/);
+  if (timeMatch) {
+    const hour = parseInt(timeMatch[1], 10);
+    if (hour >= 5 && hour <= 8) return SHIFT_TYPES.FD;
+    if (hour >= 12 && hour <= 15) return SHIFT_TYPES.SD;
+    if (hour >= 19 && hour <= 23) return SHIFT_TYPES.ND;
+    if (hour >= 8 && hour <= 11) return SHIFT_TYPES.TD;
+  }
+
+  // Short unknown code fallback (e.g. custom shift 'BD', 'MD')
+  if (s.length >= 2 && s.length <= 4 && /^[A-Z0-9]+$/.test(s)) {
+    return { code: s, label: s, time: 'Dienst', badgeClass: 'shift-badge-td' };
+  }
+
+  return SHIFT_TYPES.FREI;
+}
+
+function detectDayColumns(cleanRows, weekDays) {
+  const dayPatterns = [
+    { idx: 0, regex: /\b(mo|mon|montag)\b/i },
+    { idx: 1, regex: /\b(di|die|dienstag)\b/i },
+    { idx: 2, regex: /\b(mi|mit|mittwoch)\b/i },
+    { idx: 3, regex: /\b(do|don|donnerstag)\b/i },
+    { idx: 4, regex: /\b(fr|fre|freitag)\b/i },
+    { idx: 5, regex: /\b(sa|sam|samstag)\b/i },
+    { idx: 6, regex: /\b(so|son|sonntag)\b/i }
+  ];
+
+  for (let r = 0; r < Math.min(15, cleanRows.length); r++) {
+    const row = cleanRows[r];
+    const colMap = {};
+    let matchesCount = 0;
+
+    row.forEach((cellVal, cIdx) => {
+      const valStr = String(cellVal || '').trim().toLowerCase();
+      if (!valStr) return;
+
+      // Ignore metadata column headers (e.g. Mitarbeitende, Funktion, Team, Pensum, Rolle)
+      if (valStr.includes('mitarbeit') || valStr.includes('personal') || valStr.includes('funktion') || valStr.includes('team') || valStr.includes('pensum') || valStr.includes('rolle')) {
+        return;
+      }
+
+      for (const p of dayPatterns) {
+        if (p.regex.test(valStr)) {
+          if (colMap[p.idx] === undefined) {
+            colMap[p.idx] = cIdx;
+            matchesCount++;
+          }
+          return;
+        }
+      }
+
+      weekDays.forEach((wd, dayIdx) => {
+        const cleanLabel = wd.label.replace('.', '').toLowerCase();
+        if (valStr.includes(wd.label) || valStr.includes(cleanLabel) || valStr.includes(wd.date)) {
+          if (colMap[dayIdx] === undefined) {
+            colMap[dayIdx] = cIdx;
+            matchesCount++;
+          }
+        }
+      });
+    });
+
+    if (matchesCount >= 3) {
+      return { headerRowIdx: r, colMap: colMap, isDayHeader: true };
+    }
+
+    // Check monthly day numbers (1..31) in header
+    const monthlyColMap = {};
+    let monthlyMatches = 0;
+    row.forEach((cellVal, cIdx) => {
+      const num = parseInt(String(cellVal).trim(), 10);
+      if (!isNaN(num) && num >= 1 && num <= 31) {
+        weekDays.forEach((wd, dayIdx) => {
+          if (wd.dayNumber === num && monthlyColMap[dayIdx] === undefined) {
+            monthlyColMap[dayIdx] = cIdx;
+            monthlyMatches++;
+          }
+        });
+      }
+    });
+
+    if (monthlyMatches >= 4) {
+      return { headerRowIdx: r, colMap: monthlyColMap, isMonthly: true };
+    }
+  }
+
+  return null;
 }
 
 function normalizeAndDetectShifts(matrix, weekOffset = 0) {
@@ -2358,59 +2491,82 @@ function normalizeAndDetectShifts(matrix, weekOffset = 0) {
   const cleanRows = matrix.filter(row => Array.isArray(row) && row.some(cell => String(cell).trim() !== ''));
   if (cleanRows.length === 0) return null;
 
-  let employeeRowIndices = [];
+  // 1. Detect Day Columns (Mo..So or dates or monthly days)
+  const dayCols = detectDayColumns(cleanRows, weekDays);
+
+  // 2. Scan for Employee Rows (Layout A: horizontal)
+  let employeeRows = [];
   cleanRows.forEach((row, rIdx) => {
-    for (let c = 0; c < Math.min(row.length, 3); c++) {
-      const emp = matchEmployeeByName(String(row[c]));
+    // If this is the day header row, skip it
+    if (dayCols && rIdx === dayCols.headerRowIdx) return;
+
+    for (let c = 0; c < row.length; c++) {
+      const emp = matchEmployeeByName(row[c]);
       if (emp) {
-        employeeRowIndices.push({ rIdx, cIdx: c, emp });
+        employeeRows.push({ rIdx, cIdx: c, emp });
         break;
       }
     }
   });
 
-  if (employeeRowIndices.length > 0) {
-    employeeRowIndices.forEach(({ rIdx, cIdx, emp }) => {
+  if (employeeRows.length > 0) {
+    employeeRows.forEach(({ rIdx, cIdx, emp }) => {
       matchedEmpIds.add(emp.id);
       const row = cleanRows[rIdx];
-      let dayIndex = 0;
-      for (let c = cIdx + 1; c < row.length; c++) {
-        if (dayIndex >= 7) break;
-        const cellVal = String(row[c] || '').trim();
-        const shiftObj = normalizeShiftCode(cellVal);
-        const day = weekDays[dayIndex];
-        detectedEntries.push({
-          employeeId: emp.id,
-          employeeName: emp.name,
-          employeeTeam: emp.team,
-          date: day.date,
-          weekday: day.weekday,
-          shiftType: shiftObj.code,
-          shiftLabel: shiftObj.label,
-          time: shiftObj.time
-        });
-        dayIndex++;
-      }
-      while (dayIndex < 7) {
-        const day = weekDays[dayIndex];
-        detectedEntries.push({
-          employeeId: emp.id,
-          employeeName: emp.name,
-          employeeTeam: emp.team,
-          date: day.date,
-          weekday: day.weekday,
-          shiftType: 'FREI',
-          shiftLabel: 'Frei / Ruhetag',
-          time: 'Frei'
-        });
-        dayIndex++;
+
+      if (dayCols && dayCols.colMap) {
+        // Precise extraction using detected day columns
+        for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+          const day = weekDays[dayIdx];
+          const targetCol = dayCols.colMap[dayIdx];
+          let cellVal = targetCol !== undefined ? String(row[targetCol] || '').trim() : '';
+          let shiftObj = normalizeShiftCode(cellVal);
+          if (!shiftObj) shiftObj = SHIFT_TYPES.FREI;
+
+          detectedEntries.push({
+            employeeId: emp.id,
+            employeeName: emp.name,
+            employeeTeam: emp.team,
+            date: day.date,
+            weekday: day.weekday,
+            shiftType: shiftObj.code,
+            shiftLabel: shiftObj.label,
+            time: shiftObj.time
+          });
+        }
+      } else {
+        // Fallback: collect cells after employee name, skipping non-shift metadata (Team, Role, Pensum)
+        const candidateCells = [];
+        for (let c = cIdx + 1; c < row.length; c++) {
+          const val = String(row[c] || '').trim();
+          const shiftObj = normalizeShiftCode(val);
+          if (shiftObj !== null) {
+            candidateCells.push(shiftObj);
+          }
+        }
+
+        for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+          const day = weekDays[dayIdx];
+          const shiftObj = candidateCells[dayIdx] || SHIFT_TYPES.FREI;
+          detectedEntries.push({
+            employeeId: emp.id,
+            employeeName: emp.name,
+            employeeTeam: emp.team,
+            date: day.date,
+            weekday: day.weekday,
+            shiftType: shiftObj.code,
+            shiftLabel: shiftObj.label,
+            time: shiftObj.time
+          });
+        }
       }
     });
   } else {
+    // Layout B: Vertical (Columns = Employees, Rows = Days)
     const headerRow = cleanRows[0];
     const employeeColIndices = [];
     headerRow.forEach((cell, cIdx) => {
-      const emp = matchEmployeeByName(String(cell));
+      const emp = matchEmployeeByName(cell);
       if (emp) {
         employeeColIndices.push({ cIdx, emp });
       }
@@ -2423,7 +2579,8 @@ function normalizeAndDetectShifts(matrix, weekOffset = 0) {
         for (let r = 1; r < cleanRows.length; r++) {
           if (dayIndex >= 7) break;
           const cellVal = String(cleanRows[r][cIdx] || '').trim();
-          const shiftObj = normalizeShiftCode(cellVal);
+          let shiftObj = normalizeShiftCode(cellVal);
+          if (!shiftObj) shiftObj = SHIFT_TYPES.FREI;
           const day = weekDays[dayIndex];
           detectedEntries.push({
             employeeId: emp.id,
@@ -2455,6 +2612,7 @@ function normalizeAndDetectShifts(matrix, weekOffset = 0) {
     }
   }
 
+  // Ensure all 12 employees are always represented in the plan
   AppState.employees.forEach(emp => {
     if (!matchedEmpIds.has(emp.id)) {
       weekDays.forEach(day => {
@@ -2494,20 +2652,44 @@ function normalizeAndDetectShifts(matrix, weekOffset = 0) {
 async function parseShiftPlanFile(file, weekOffset = 0) {
   const fileName = file.name.toLowerCase();
 
-  if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+  if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || file.type.includes('spreadsheet') || file.type.includes('excel')) {
     if (typeof XLSX === 'undefined') {
       throw new Error('Excel-Engine wird noch geladen. Bitte kurz warten.');
     }
     const arrayBuffer = await file.arrayBuffer();
     const wb = XLSX.read(arrayBuffer, { type: 'array' });
-    const sheetName = wb.SheetNames[0];
-    const matrix = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
-    const plan = normalizeAndDetectShifts(matrix, weekOffset);
-    if (plan) {
-      plan.fileName = file.name;
-      plan.fileType = 'excel';
+    
+    // Check all sheets in the workbook and pick the sheet with the most employee matches!
+    let bestPlan = null;
+    let maxEmployees = -1;
+
+    for (const sheetName of wb.SheetNames) {
+      const sheet = wb.Sheets[sheetName];
+      if (!sheet) continue;
+      const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false });
+      if (!matrix || matrix.length === 0) continue;
+
+      const plan = normalizeAndDetectShifts(matrix, weekOffset);
+      if (plan && plan.recognizedEmployeesCount > maxEmployees) {
+        maxEmployees = plan.recognizedEmployeesCount;
+        bestPlan = plan;
+        bestPlan.sheetName = sheetName;
+      }
     }
-    return plan;
+
+    if (bestPlan && maxEmployees > 0) {
+      bestPlan.fileName = file.name;
+      bestPlan.fileType = 'excel';
+      return bestPlan;
+    }
+
+    if (bestPlan) {
+      bestPlan.fileName = file.name;
+      bestPlan.fileType = 'excel';
+      return bestPlan;
+    }
+
+    throw new Error('In dieser Excel-Datei konnten keine Mitarbeitenden von Heim Egerkingen gefunden werden.');
   }
 
   if (fileName.endsWith('.csv') || fileName.endsWith('.txt')) {
