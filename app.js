@@ -2697,23 +2697,47 @@ async function parseShiftPlanFile(file, weekOffset = 0) {
     return parseTextShiftPlan(text, weekOffset, file.name);
   }
 
-  if (fileName.endsWith('.pdf')) {
+  if (fileName.endsWith('.pdf') || file.type === 'application/pdf') {
     if (typeof pdfjsLib === 'undefined') {
       throw new Error('PDF-Engine wird noch geladen. Bitte kurz warten.');
     }
+    if (pdfjsLib.GlobalWorkerOptions) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+    }
+
+    const dataUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     let fullText = '';
     for (let p = 1; p <= pdf.numPages; p++) {
       const page = await pdf.getPage(p);
       const textContent = await page.getTextContent();
-      const pageStr = textContent.items.map(i => i.str).join(' ');
-      fullText += pageStr + '\n';
+      let lastY = null;
+      let pageText = '';
+      for (const item of textContent.items) {
+        const currentY = item.transform ? Math.round(item.transform[5]) : null;
+        if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 5) {
+          pageText += '\n';
+        } else if (item.hasEOL) {
+          pageText += '\n';
+        } else if (pageText.length > 0 && !pageText.endsWith('\n') && !pageText.endsWith(' ')) {
+          pageText += ' ';
+        }
+        pageText += item.str;
+        if (currentY !== null) lastY = currentY;
+      }
+      fullText += pageText + '\n';
     }
     const plan = parseTextShiftPlan(fullText, weekOffset, file.name);
     if (plan) {
       plan.fileType = 'pdf';
       plan.fileName = file.name;
+      plan.fileDataUrl = dataUrl;
     }
     return plan;
   }
@@ -2762,7 +2786,8 @@ function parseTextShiftPlan(text, weekOffset = 0, fileName = 'Text-Schichtplan')
     if (line.includes('\t')) return line.split('\t').map(c => c.trim());
     if (line.includes(';')) return line.split(';').map(c => c.trim());
     if (line.includes(',')) return line.split(',').map(c => c.trim());
-    return line.split(/\s{2,}/).map(c => c.trim());
+    if (/\s{2,}/.test(line)) return line.split(/\s{2,}/).map(c => c.trim());
+    return line.split(/\s+/).map(c => c.trim());
   });
 
   const plan = normalizeAndDetectShifts(matrix, weekOffset);
