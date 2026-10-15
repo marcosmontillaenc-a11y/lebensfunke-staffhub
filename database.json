@@ -217,42 +217,21 @@
   "damages": [],
   "activityLog": [
     {
-      "id": "log-1792049099741-463",
-      "timestamp": "2026-10-15T07:24:59.741Z",
-      "action": "Artikel gekauft",
-      "details": "\"Bio-Hafermilch Barista\" wurde als gekauft markiert von Bella.",
-      "type": "update"
+      "id": "log-1792049297917-487",
+      "timestamp": "2026-10-15T07:28:17.917Z",
+      "action": "Artikel gelöscht",
+      "details": "\"WC-Papier (Comfort 3-lagig)\" aus der Einkaufsliste gelöscht.",
+      "type": "delete"
     },
     {
-      "id": "log-1792049099722-830",
-      "timestamp": "2026-10-15T07:24:59.722Z",
-      "action": "Einkauf hinzugefügt",
-      "details": "\"Bio-Hafermilch Barista\" (WG1) zur Einkaufsliste hinzugefügt.",
-      "type": "create"
-    },
-    {
-      "id": "log-1792049099329-675",
-      "timestamp": "2026-10-15T07:24:59.329Z",
+      "id": "log-1792049281857-204",
+      "timestamp": "2026-10-15T07:28:01.857Z",
       "action": "Schicht-Login",
       "details": "Bella (Schulpersonal & App-Administratorin) hat sich angemeldet.",
       "type": "system"
     }
   ],
   "shoppingList": [
-    {
-      "id": "shop-1792049099722-a2pe",
-      "title": "Bio-Hafermilch Barista",
-      "quantity": "3 Liter",
-      "category": "frische",
-      "area": "wg1",
-      "isUrgent": true,
-      "note": "",
-      "bought": true,
-      "createdAt": "2026-10-15T07:24:59.722Z",
-      "createdBy": "Bella",
-      "boughtAt": "2026-10-15T07:24:59.741Z",
-      "boughtBy": "Bella"
-    },
     {
       "id": "shop-101",
       "title": "Vollmilch (UHT 3.5%)",
@@ -264,20 +243,6 @@
       "bought": false,
       "createdAt": "2026-10-15T08:00:00.000Z",
       "createdBy": "Bella",
-      "boughtAt": null,
-      "boughtBy": null
-    },
-    {
-      "id": "shop-102",
-      "title": "WC-Papier (Comfort 3-lagig)",
-      "quantity": "2x 24er Pack",
-      "category": "haushalt",
-      "area": "allgemein",
-      "isUrgent": true,
-      "note": "Für beide WGs",
-      "bought": false,
-      "createdAt": "2026-10-15T08:15:00.000Z",
-      "createdBy": "Oliver",
       "boughtAt": null,
       "boughtBy": null
     },
