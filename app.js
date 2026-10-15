@@ -297,6 +297,78 @@ const INITIAL_SEED_DATA = Object.freeze({
   tasks: [],
   damages: [],
   activityLog: [],
+  shoppingList: [
+    {
+      id: 'shop-101',
+      title: 'Vollmilch (UHT 3.5%)',
+      quantity: '6 Liter',
+      category: 'frische',
+      area: 'allgemein',
+      isUrgent: true,
+      note: 'Kühlschrank leer, Vorrat auffüllen',
+      bought: false,
+      createdAt: '2026-10-15T08:00:00.000Z',
+      createdBy: 'Bella',
+      boughtAt: null,
+      boughtBy: null
+    },
+    {
+      id: 'shop-102',
+      title: 'WC-Papier (Comfort 3-lagig)',
+      quantity: '2x 24er Pack',
+      category: 'haushalt',
+      area: 'allgemein',
+      isUrgent: true,
+      note: 'Für beide WGs',
+      bought: false,
+      createdAt: '2026-10-15T08:15:00.000Z',
+      createdBy: 'Oliver',
+      boughtAt: null,
+      boughtBy: null
+    },
+    {
+      id: 'shop-103',
+      title: 'Brot & Toast',
+      quantity: '3 Laibe / 2 Toast',
+      category: 'lebensmittel',
+      area: 'wg1',
+      isUrgent: false,
+      note: 'Frühstück WG 1',
+      bought: false,
+      createdAt: '2026-10-15T08:30:00.000Z',
+      createdBy: 'Kerstin',
+      boughtAt: null,
+      boughtBy: null
+    },
+    {
+      id: 'shop-104',
+      title: 'Frische Äpfel & Bananen',
+      quantity: '3 kg',
+      category: 'frische',
+      area: 'wg2',
+      isUrgent: false,
+      note: 'Znüni für die Jugendlichen',
+      bought: false,
+      createdAt: '2026-10-15T08:45:00.000Z',
+      createdBy: 'Laura',
+      boughtAt: null,
+      boughtBy: null
+    },
+    {
+      id: 'shop-105',
+      title: 'Geschirrspültabs (All-in-1)',
+      quantity: '1 Grossbox',
+      category: 'haushalt',
+      area: 'allgemein',
+      isUrgent: false,
+      note: '',
+      bought: true,
+      createdAt: '2026-10-14T14:00:00.000Z',
+      createdBy: 'Bella',
+      boughtAt: '2026-10-14T17:30:00.000Z',
+      boughtBy: 'Cigdem'
+    }
+  ],
   currentUser: null,
   shiftPlan: null,
   theme: 'dark'
@@ -312,6 +384,7 @@ let AppState = {
   tasks: [],
   damages: [],
   activityLog: [],
+  shoppingList: [],
   shiftPlan: null,
   shiftViewFilter: 'all',
   shiftViewWeekOffset: 0,
@@ -322,7 +395,8 @@ let AppState = {
     employees: { search: '', team: '', status: '' },
     youths: { search: '', status: '', bezugsperson: '' },
     tasks: { search: '', priority: '', status: '', assignee: '' },
-    damages: { search: '', urgency: '', status: '' }
+    damages: { search: '', urgency: '', status: '' },
+    shopping: { search: '', status: 'open', category: '', area: '' }
   }
 };
 
@@ -339,6 +413,7 @@ function loadState() {
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks : INITIAL_SEED_DATA.tasks,
       damages: Array.isArray(parsed.damages) ? parsed.damages : (INITIAL_SEED_DATA.damages || []),
       activityLog: Array.isArray(parsed.activityLog) ? parsed.activityLog : INITIAL_SEED_DATA.activityLog,
+      shoppingList: (Array.isArray(parsed.shoppingList) && parsed.shoppingList.length > 0) ? parsed.shoppingList : JSON.parse(JSON.stringify(INITIAL_SEED_DATA.shoppingList || [])),
       shiftPlan: (parsed.shiftPlan && typeof parsed.shiftPlan === 'object') ? parsed.shiftPlan : null,
       currentUser: (parsed.currentUser && parsed.currentUser.id) ? parsed.currentUser : null,
       theme: parsed.theme || 'dark'
@@ -357,6 +432,7 @@ function saveState() {
       tasks: AppState.tasks,
       damages: AppState.damages,
       activityLog: AppState.activityLog,
+      shoppingList: AppState.shoppingList,
       shiftPlan: AppState.shiftPlan,
       currentUser: AppState.currentUser,
       theme: AppState.theme
@@ -403,6 +479,7 @@ function resetStateToSeed() {
   AppState.youths = JSON.parse(JSON.stringify(INITIAL_SEED_DATA.youths));
   AppState.tasks = JSON.parse(JSON.stringify(INITIAL_SEED_DATA.tasks));
   AppState.damages = JSON.parse(JSON.stringify(INITIAL_SEED_DATA.damages));
+  AppState.shoppingList = JSON.parse(JSON.stringify(INITIAL_SEED_DATA.shoppingList));
   AppState.activityLog = [
     {
       id: 'log-' + Date.now(),
@@ -430,6 +507,7 @@ function exportStateAsJson() {
         youths: AppState.youths,
         tasks: AppState.tasks,
         damages: AppState.damages,
+        shoppingList: AppState.shoppingList,
         activityLog: AppState.activityLog,
         currentUser: AppState.currentUser,
         theme: AppState.theme
@@ -474,9 +552,10 @@ function importStateFromJson(file) {
       AppState.youths = Array.isArray(incoming.youths) ? incoming.youths : [];
       AppState.tasks = incoming.tasks;
       AppState.damages = Array.isArray(incoming.damages) ? incoming.damages : [];
+      AppState.shoppingList = Array.isArray(incoming.shoppingList) ? incoming.shoppingList : [];
       AppState.activityLog = Array.isArray(incoming.activityLog) ? incoming.activityLog : [];
       
-      logActivity('Backup importiert', `JSON-Sicherung mit ${incoming.employees.length} Mitarbeitenden, ${AppState.youths.length} Jugendlichen, ${incoming.tasks.length} Aufgaben und ${AppState.damages.length} Schadenmeldungen eingespielt.`, 'system');
+      logActivity('Backup importiert', `JSON-Sicherung mit ${incoming.employees.length} Mitarbeitenden, ${AppState.youths.length} Jugendlichen, ${incoming.tasks.length} Aufgaben, ${AppState.damages.length} Schadenmeldungen und ${AppState.shoppingList.length} Einkaufsartikeln eingespielt.`, 'system');
       saveState();
       renderApp();
       showToast('Heim-Daten erfolgreich importiert!', 'success');
@@ -1153,7 +1232,7 @@ function deleteDamage(damageId) {
 // ============================================================================
 
 function switchView(viewName) {
-  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages', 'shifts', 'login'];
+  const validViews = ['dashboard', 'employees', 'youths', 'tasks', 'damages', 'shopping', 'shifts', 'login'];
   const target = validViews.includes(viewName) ? viewName : 'dashboard';
 
   AppState.activeView = target;
@@ -1177,6 +1256,7 @@ function switchView(viewName) {
   if (target === 'youths') renderYouths();
   if (target === 'tasks') renderTasks();
   if (target === 'damages') renderDamages();
+  if (target === 'shopping') renderShoppingList();
   if (target === 'shifts') renderShiftsView();
   if (target === 'login') renderLoginView();
 }
@@ -1203,6 +1283,7 @@ function renderApp() {
   renderYouths();
   renderTasks();
   renderDamages();
+  renderShoppingList();
   renderShiftsView();
   renderLoginView();
 }
@@ -1273,6 +1354,11 @@ function renderBadges() {
   if (badgeDamages) {
     const openDamagesCount = AppState.damages.filter(d => d.status !== DAMAGE_STATUSES.BEHOBEN).length;
     badgeDamages.textContent = openDamagesCount;
+  }
+  const badgeShopping = document.getElementById('badgeNavShopping');
+  if (badgeShopping) {
+    const openShoppingCount = (AppState.shoppingList || []).filter(item => !item.bought).length;
+    badgeShopping.textContent = openShoppingCount;
   }
   const badgeShifts = document.getElementById('badgeNavShifts');
   if (badgeShifts) {
@@ -1568,6 +1654,19 @@ function renderDashboard() {
   if (elOpenDamages) elOpenDamages.textContent = openDamages;
   if (elUrgentDamages) elUrgentDamages.textContent = `${urgentDamages} Dringend`;
   if (elResolvedDamages) elResolvedDamages.textContent = `${resolvedDamages} behoben`;
+
+  // Stat Card 7: Shopping List
+  const shoppingItems = AppState.shoppingList || [];
+  const openShopping = shoppingItems.filter(i => !i.bought).length;
+  const urgentShopping = shoppingItems.filter(i => !i.bought && i.isUrgent).length;
+  const boughtShopping = shoppingItems.filter(i => i.bought).length;
+
+  const elOpenShopping = document.getElementById('statOpenShopping');
+  const elUrgentShopping = document.getElementById('statUrgentShopping');
+  const elBoughtShopping = document.getElementById('statBoughtShopping');
+  if (elOpenShopping) elOpenShopping.textContent = openShopping;
+  if (elUrgentShopping) elUrgentShopping.textContent = `${urgentShopping} Dringend`;
+  if (elBoughtShopping) elBoughtShopping.textContent = `${boughtShopping} gekauft`;
 
   // Damage Alert Banner
   const alertBanner = document.getElementById('dashDamageAlertBanner');
@@ -2231,6 +2330,413 @@ function renderDamages() {
       switchView('tasks');
     });
   });
+}
+
+// ============================================================================
+// 8.4 EINKAUFSLISTE ENGINE & LOGIC (Besorgungen & Bedarf Heim Egerkingen)
+// ============================================================================
+
+const SHOPPING_CATEGORIES = {
+  frische: { label: 'Frische & Kühlung', icon: '🥛' },
+  lebensmittel: { label: 'Lebensmittel & Vorrat', icon: '🍞' },
+  haushalt: { label: 'Haushalt & Reinigung', icon: '🧻' },
+  hygiene: { label: 'Hygiene & Pflege', icon: '🧼' },
+  schule: { label: 'Schule & Freizeit', icon: '📚' },
+  sonstiges: { label: 'Sonstiges', icon: '📦' }
+};
+
+const SHOPPING_AREAS = {
+  allgemein: { label: 'Allgemein (Heim)', tagClass: 'shopping-tag-area-allgemein', icon: '🏠' },
+  wg1: { label: 'Wohngruppe 1 (WG 1)', tagClass: 'shopping-tag-area-wg1', icon: '🛋️' },
+  wg2: { label: 'Wohngruppe 2 (WG 2)', tagClass: 'shopping-tag-area-wg2', icon: '🛌' },
+  schule: { label: 'Schule & Bildung', tagClass: 'shopping-tag-area-schule', icon: '📚' }
+};
+
+function renderShoppingList() {
+  const container = document.getElementById('shoppingListContainer');
+  const emptyState = document.getElementById('shoppingEmptyState');
+  if (!container) return;
+
+  const items = AppState.shoppingList || [];
+  const filter = AppState.filters.shopping || { search: '', status: 'open', category: '', area: '' };
+
+  // Update Tab Counters
+  const countOpen = items.filter(i => !i.bought).length;
+  const countBought = items.filter(i => i.bought).length;
+  const countAll = items.length;
+
+  const tabCountOpen = document.getElementById('tabCountOpen');
+  const tabCountBought = document.getElementById('tabCountBought');
+  const tabCountAll = document.getElementById('tabCountAll');
+  if (tabCountOpen) tabCountOpen.textContent = countOpen;
+  if (tabCountBought) tabCountBought.textContent = countBought;
+  if (tabCountAll) tabCountAll.textContent = countAll;
+
+  // Filter Items
+  let filtered = items.filter(item => {
+    // Status tab filter
+    if (filter.status === 'open' && item.bought) return false;
+    if (filter.status === 'bought' && !item.bought) return false;
+
+    // Area filter
+    if (filter.area && item.area !== filter.area) return false;
+
+    // Category filter
+    if (filter.category && item.category !== filter.category) return false;
+
+    // Search filter
+    if (filter.search) {
+      const q = filter.search.toLowerCase();
+      const matchTitle = (item.title || '').toLowerCase().includes(q);
+      const matchQty = (item.quantity || '').toLowerCase().includes(q);
+      const matchNote = (item.note || '').toLowerCase().includes(q);
+      const matchCreator = (item.createdBy || '').toLowerCase().includes(q);
+      if (!matchTitle && !matchQty && !matchNote && !matchCreator) return false;
+    }
+
+    return true;
+  });
+
+  // Sort: Unbought first, then Urgent first, then newest
+  filtered.sort((a, b) => {
+    if (a.bought !== b.bought) return a.bought ? 1 : -1;
+    if (a.isUrgent !== b.isUrgent) return a.isUrgent ? -1 : 1;
+    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+  });
+
+  // Show/Hide Empty State
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    if (emptyState) {
+      emptyState.classList.remove('hidden');
+      const emptyTitle = document.getElementById('shoppingEmptyTitle');
+      const emptyDesc = document.getElementById('shoppingEmptyDesc');
+      if (filter.status === 'bought') {
+        if (emptyTitle) emptyTitle.textContent = 'Noch keine gekauften Artikel';
+        if (emptyDesc) emptyDesc.textContent = 'Artikel, die du als gekauft abhakst, erscheinen hier.';
+      } else if (filter.search || filter.area || filter.category) {
+        if (emptyTitle) emptyTitle.textContent = 'Keine passenden Artikel gefunden';
+        if (emptyDesc) emptyDesc.textContent = 'Passe deine Suchbegriffe oder Filtereinstellungen an.';
+      } else {
+        if (emptyTitle) emptyTitle.textContent = 'Alles erledigt! Die Einkaufsliste ist leer.';
+        if (emptyDesc) emptyDesc.textContent = 'Nutze die Schnellauswahl oben oder trage neue Besorgungen ein.';
+      }
+    }
+    return;
+  }
+
+  if (emptyState) emptyState.classList.add('hidden');
+
+  container.innerHTML = filtered.map(item => {
+    const areaMeta = SHOPPING_AREAS[item.area] || SHOPPING_AREAS.allgemein;
+    const catMeta = SHOPPING_CATEGORIES[item.category] || SHOPPING_CATEGORIES.sonstiges;
+    const dateFormatted = formatTimestamp(item.createdAt);
+
+    return `
+      <div class="shopping-card ${item.bought ? 'bought-card' : ''} ${item.isUrgent && !item.bought ? 'urgent-card' : ''}" data-shopping-id="${escapeHtml(item.id)}">
+        <div class="shopping-card-top">
+          <button type="button" class="shopping-check-btn ${item.bought ? 'checked' : ''}" data-toggle-bought="${escapeHtml(item.id)}" title="${item.bought ? 'Als noch zu kaufen markieren' : 'Als gekauft abhaken'}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+
+          <div class="shopping-title-group">
+            <div class="shopping-item-title">${escapeHtml(item.title)}</div>
+            <div class="shopping-badges-row">
+              ${item.quantity ? `<span class="shopping-tag shopping-tag-qty">${escapeHtml(item.quantity)}</span>` : ''}
+              ${item.isUrgent && !item.bought ? `<span class="shopping-tag shopping-tag-urgent">⚡ Dringend</span>` : ''}
+              <span class="shopping-tag ${areaMeta.tagClass}">${areaMeta.icon} ${escapeHtml(areaMeta.label)}</span>
+              <span class="shopping-tag shopping-tag-cat">${catMeta.icon} ${escapeHtml(catMeta.label)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${item.note ? `<div class="shopping-note-box">${escapeHtml(item.note)}</div>` : ''}
+
+        <div class="shopping-card-footer">
+          <div class="shopping-author-info">
+            <span class="shopping-author-name">Von ${escapeHtml(item.createdBy || 'Mitarbeiter')} · ${dateFormatted}</span>
+            ${item.bought ? `<span class="shopping-bought-info">✓ Gekauft ${item.boughtBy ? 'von ' + escapeHtml(item.boughtBy) : ''}</span>` : ''}
+          </div>
+
+          <div class="shopping-card-actions">
+            <button type="button" class="shopping-btn-action" data-edit-shopping="${escapeHtml(item.id)}" title="Artikel bearbeiten">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button type="button" class="shopping-btn-action delete-action" data-delete-shopping="${escapeHtml(item.id)}" title="Artikel löschen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach card event listeners
+  container.querySelectorAll('[data-toggle-bought]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-toggle-bought');
+      toggleShoppingItemBought(id);
+    });
+  });
+
+  container.querySelectorAll('[data-edit-shopping]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-edit-shopping');
+      const item = (AppState.shoppingList || []).find(i => i.id === id);
+      if (item) openShoppingModal(item);
+    });
+  });
+
+  container.querySelectorAll('[data-delete-shopping]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-delete-shopping');
+      deleteShoppingItem(id);
+    });
+  });
+}
+
+function quickAddShoppingItem(title, quantity = '', category = 'lebensmittel', area = 'allgemein', isUrgent = false) {
+  const cleanTitle = (title || '').trim();
+  if (!cleanTitle) return;
+
+  const currentUserName = AppState.currentUser ? AppState.currentUser.displayName : 'Mitarbeiter';
+
+  const newItem = {
+    id: 'shop-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+    title: cleanTitle,
+    quantity: (quantity || '').trim(),
+    category: category || 'lebensmittel',
+    area: area || 'allgemein',
+    isUrgent: !!isUrgent,
+    note: '',
+    bought: false,
+    createdAt: new Date().toISOString(),
+    createdBy: currentUserName,
+    boughtAt: null,
+    boughtBy: null
+  };
+
+  if (!Array.isArray(AppState.shoppingList)) {
+    AppState.shoppingList = [];
+  }
+
+  AppState.shoppingList.unshift(newItem);
+  logActivity('Einkauf hinzugefügt', `"${cleanTitle}" (${area.toUpperCase()}) zur Einkaufsliste hinzugefügt.`, 'create');
+  saveState();
+  renderApp();
+  showToast(`"${cleanTitle}" zur Einkaufsliste hinzugefügt.`, 'success');
+}
+
+function toggleShoppingItemBought(id) {
+  const item = (AppState.shoppingList || []).find(i => i.id === id);
+  if (!item) return;
+
+  item.bought = !item.bought;
+  if (item.bought) {
+    item.boughtAt = new Date().toISOString();
+    item.boughtBy = AppState.currentUser ? AppState.currentUser.displayName : 'Mitarbeiter';
+    logActivity('Artikel gekauft', `"${item.title}" wurde als gekauft markiert von ${item.boughtBy}.`, 'update');
+    showToast(`✓ "${item.title}" als gekauft markiert.`, 'success');
+  } else {
+    item.boughtAt = null;
+    item.boughtBy = null;
+    logActivity('Artikel reaktiviert', `"${item.title}" wieder auf die Einkaufsliste gesetzt.`, 'update');
+    showToast(`"${item.title}" wieder auf die Einkaufsliste gesetzt.`, 'info');
+  }
+
+  saveState();
+  renderApp();
+}
+
+function deleteShoppingItem(id) {
+  const item = (AppState.shoppingList || []).find(i => i.id === id);
+  if (!item) return;
+
+  AppState.shoppingList = (AppState.shoppingList || []).filter(i => i.id !== id);
+  logActivity('Artikel gelöscht', `"${item.title}" aus der Einkaufsliste gelöscht.`, 'delete');
+  saveState();
+  renderApp();
+  showToast(`"${item.title}" gelöscht.`, 'info');
+}
+
+function clearBoughtShoppingItems() {
+  const boughtCount = (AppState.shoppingList || []).filter(i => i.bought).length;
+  if (boughtCount === 0) {
+    showToast('Keine gekauften Artikel zum Löschen vorhanden.', 'info');
+    return;
+  }
+
+  AppState.shoppingList = (AppState.shoppingList || []).filter(i => !i.bought);
+  logActivity('Erledigte Einkäufe archiviert', `${boughtCount} gekaufte Artikel von der Einkaufsliste entfernt.`, 'delete');
+  saveState();
+  renderApp();
+  showToast(`${boughtCount} erledigte Artikel von der Liste entfernt.`, 'success');
+}
+
+function copyShoppingListToClipboard() {
+  const items = AppState.shoppingList || [];
+  if (items.length === 0) {
+    showToast('Einkaufsliste ist leer.', 'warning');
+    return;
+  }
+
+  const openItems = items.filter(i => !i.bought);
+  const boughtItems = items.filter(i => i.bought);
+
+  let text = `🛒 *EINKAUFSLISTE — HEIM EGERKINGEN*\n`;
+  text += `Kanzelstrasse 23 · Stand: ${new Date().toLocaleDateString('de-CH')}, ${new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })}\n\n`;
+
+  if (openItems.length > 0) {
+    text += `*ZU KAUFEN (${openItems.length}):*\n`;
+    openItems.forEach(item => {
+      const area = SHOPPING_AREAS[item.area]?.label || 'Allgemein';
+      const urgent = item.isUrgent ? ' ⚡[DRINGEND]' : '';
+      const qty = item.quantity ? ` (${item.quantity})` : '';
+      const note = item.note ? ` — _${item.note}_` : '';
+      text += `• [ ] ${item.title}${qty}${urgent} [${area}]${note}\n`;
+    });
+  } else {
+    text += `*ZU KAUFEN:* Keine offenen Artikel!\n`;
+  }
+
+  if (boughtItems.length > 0) {
+    text += `\n*BEREITS GEKAUFT (${boughtItems.length}):*\n`;
+    boughtItems.forEach(item => {
+      text += `• [✓] ~${item.title}~ ${item.quantity ? `(${item.quantity})` : ''} ${item.boughtBy ? `(von ${item.boughtBy})` : ''}\n`;
+    });
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 Einkaufsliste in Zwischenablage kopiert! (z. B. für WhatsApp)', 'success');
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+
+  function fallbackCopy(val) {
+    const ta = document.createElement('textarea');
+    ta.value = val;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('📋 Einkaufsliste in Zwischenablage kopiert!', 'success');
+    } catch (e) {
+      prompt('Einkaufsliste kopieren:', val);
+    }
+    document.body.removeChild(ta);
+  }
+}
+
+function openShoppingModal(item = null) {
+  const modal = document.getElementById('modalShopping');
+  const form = document.getElementById('formShopping');
+  const title = document.getElementById('modalShoppingTitle');
+  const creatorSelect = document.getElementById('shoppingItemCreator');
+  if (!modal || !form) return;
+
+  form.reset();
+  clearFormErrors('formShopping');
+
+  // Populate creator select with employees
+  if (creatorSelect) {
+    creatorSelect.innerHTML = AppState.employees.map(e => {
+      const isSelected = AppState.currentUser ? AppState.currentUser.id === e.id : e.name.toLowerCase() === 'bella';
+      return `<option value="${escapeHtml(e.name)}" ${isSelected ? 'selected' : ''}>${escapeHtml(e.name)} (${escapeHtml(e.team)})</option>`;
+    }).join('');
+  }
+
+  if (item) {
+    if (title) title.textContent = 'Artikel bearbeiten';
+    document.getElementById('shoppingItemId').value = item.id;
+    document.getElementById('shoppingItemTitle').value = item.title || '';
+    document.getElementById('shoppingItemQuantity').value = item.quantity || '';
+    document.getElementById('shoppingItemCategory').value = item.category || 'lebensmittel';
+    document.getElementById('shoppingItemArea').value = item.area || 'allgemein';
+    document.getElementById('shoppingItemUrgent').checked = !!item.isUrgent;
+    document.getElementById('shoppingItemNote').value = item.note || '';
+    if (creatorSelect && item.createdBy) {
+      creatorSelect.value = item.createdBy;
+    }
+  } else {
+    if (title) title.textContent = 'Artikel zur Einkaufsliste hinzufügen';
+    document.getElementById('shoppingItemId').value = '';
+    document.getElementById('shoppingItemArea').value = 'allgemein';
+    document.getElementById('shoppingItemCategory').value = 'frische';
+    document.getElementById('shoppingItemUrgent').checked = false;
+  }
+
+  modal.classList.remove('hidden');
+  setTimeout(() => document.getElementById('shoppingItemTitle')?.focus(), 100);
+}
+
+function saveShoppingItem(formData) {
+  const cleanTitle = (formData.title || '').trim();
+  if (cleanTitle.length < 2) {
+    showToast('Bitte gib einen Artikelnamen mit mindestens 2 Zeichen ein.', 'warning');
+    return false;
+  }
+
+  if (!Array.isArray(AppState.shoppingList)) {
+    AppState.shoppingList = [];
+  }
+
+  if (formData.id) {
+    // Edit existing
+    const existing = AppState.shoppingList.find(i => i.id === formData.id);
+    if (!existing) return false;
+
+    existing.title = cleanTitle;
+    existing.quantity = (formData.quantity || '').trim();
+    existing.category = formData.category || 'lebensmittel';
+    existing.area = formData.area || 'allgemein';
+    existing.isUrgent = !!formData.isUrgent;
+    existing.note = (formData.note || '').trim();
+    if (formData.createdBy) existing.createdBy = formData.createdBy;
+
+    logActivity('Einkauf aktualisiert', `"${cleanTitle}" wurde aktualisiert.`, 'update');
+    showToast(`"${cleanTitle}" aktualisiert.`, 'success');
+  } else {
+    // Create new
+    const newItem = {
+      id: 'shop-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      title: cleanTitle,
+      quantity: (formData.quantity || '').trim(),
+      category: formData.category || 'lebensmittel',
+      area: formData.area || 'allgemein',
+      isUrgent: !!formData.isUrgent,
+      note: (formData.note || '').trim(),
+      bought: false,
+      createdAt: new Date().toISOString(),
+      createdBy: formData.createdBy || (AppState.currentUser ? AppState.currentUser.displayName : 'Mitarbeiter'),
+      boughtAt: null,
+      boughtBy: null
+    };
+
+    AppState.shoppingList.unshift(newItem);
+    logActivity('Einkauf hinzugefügt', `"${cleanTitle}" zur Einkaufsliste hinzugefügt.`, 'create');
+    showToast(`"${cleanTitle}" hinzugefügt.`, 'success');
+  }
+
+  saveState();
+  renderApp();
+  return true;
 }
 
 // ============================================================================
@@ -4267,6 +4773,123 @@ function setupEventListeners() {
     });
   }
 
+  // ==========================================
+  // Einkaufsliste Event Listeners
+  // ==========================================
+  // Quick-Add Fast Input Form (Enter key submits)
+  const formQuickAddShopping = document.getElementById('formQuickAddShopping');
+  if (formQuickAddShopping) {
+    formQuickAddShopping.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const titleInput = document.getElementById('quickShoppingTitle');
+      const areaSelect = document.getElementById('quickShoppingArea');
+      const catSelect = document.getElementById('quickShoppingCategory');
+      const urgentCheckbox = document.getElementById('quickShoppingUrgent');
+
+      const title = (titleInput?.value || '').trim();
+      if (!title) return;
+
+      const area = areaSelect?.value || 'allgemein';
+      const category = catSelect?.value || 'lebensmittel';
+      const isUrgent = !!urgentCheckbox?.checked;
+
+      quickAddShoppingItem(title, '', category, area, isUrgent);
+
+      titleInput.value = '';
+      if (urgentCheckbox) urgentCheckbox.checked = false;
+      titleInput.focus();
+    });
+  }
+
+  // Quick-Add Chips
+  document.querySelectorAll('.shopping-chip-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const title = btn.getAttribute('data-chip-title');
+      const qty = btn.getAttribute('data-chip-qty');
+      const cat = btn.getAttribute('data-chip-cat');
+      const area = btn.getAttribute('data-chip-area');
+      quickAddShoppingItem(title, qty, cat, area, false);
+    });
+  });
+
+  // Status Filter Tabs
+  document.querySelectorAll('.shopping-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.shopping-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const status = btn.getAttribute('data-filter-status');
+      if (!AppState.filters.shopping) AppState.filters.shopping = {};
+      AppState.filters.shopping.status = status;
+      renderShoppingList();
+    });
+  });
+
+  // Area & Category Select Filters
+  document.getElementById('filterShoppingArea')?.addEventListener('change', (e) => {
+    if (!AppState.filters.shopping) AppState.filters.shopping = {};
+    AppState.filters.shopping.area = e.target.value;
+    renderShoppingList();
+  });
+
+  document.getElementById('filterShoppingCategory')?.addEventListener('change', (e) => {
+    if (!AppState.filters.shopping) AppState.filters.shopping = {};
+    AppState.filters.shopping.category = e.target.value;
+    renderShoppingList();
+  });
+
+  // Search Filter
+  document.getElementById('filterShoppingSearch')?.addEventListener('input', (e) => {
+    if (!AppState.filters.shopping) AppState.filters.shopping = {};
+    AppState.filters.shopping.search = e.target.value;
+    renderShoppingList();
+  });
+
+  // Copy List Button
+  document.getElementById('btnCopyShoppingList')?.addEventListener('click', copyShoppingListToClipboard);
+
+  // Clear Bought Button
+  document.getElementById('btnClearBoughtShopping')?.addEventListener('click', clearBoughtShoppingItems);
+
+  // New Shopping Item Modal Open
+  document.getElementById('btnNewShoppingItem')?.addEventListener('click', () => openShoppingModal());
+
+  // Dashboard Shopping Card & View Action
+  document.getElementById('cardDashShopping')?.addEventListener('click', () => switchView('shopping'));
+  document.getElementById('btnDashViewShopping')?.addEventListener('click', () => switchView('shopping'));
+
+  // Shopping Modal Form Submit
+  const formShopping = document.getElementById('formShopping');
+  if (formShopping) {
+    formShopping.addEventListener('submit', (e) => {
+      e.preventDefault();
+      clearFormErrors('formShopping');
+
+      const formData = {
+        id: document.getElementById('shoppingItemId').value || null,
+        title: document.getElementById('shoppingItemTitle').value,
+        quantity: document.getElementById('shoppingItemQuantity').value,
+        category: document.getElementById('shoppingItemCategory').value,
+        area: document.getElementById('shoppingItemArea').value,
+        createdBy: document.getElementById('shoppingItemCreator').value,
+        isUrgent: document.getElementById('shoppingItemUrgent').checked,
+        note: document.getElementById('shoppingItemNote').value
+      };
+
+      if (!formData.title || formData.title.trim().length < 2) {
+        const inputEl = document.getElementById('shoppingItemTitle');
+        const errorEl = document.getElementById('shoppingItemTitleError');
+        if (inputEl) inputEl.classList.add('is-invalid');
+        if (errorEl) errorEl.textContent = 'Bitte mindestens 2 Zeichen eingeben.';
+        return;
+      }
+
+      const success = saveShoppingItem(formData);
+      if (success) {
+        closeModal('modalShopping');
+      }
+    });
+  }
+
   // Modal Close buttons
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -4448,6 +5071,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       AppState.youths = serverData.youths || AppState.youths;
       AppState.tasks = serverData.tasks || AppState.tasks;
       AppState.damages = serverData.damages || AppState.damages;
+      if (Array.isArray(serverData.shoppingList) && serverData.shoppingList.length > 0) {
+        AppState.shoppingList = serverData.shoppingList;
+      } else if (!AppState.shoppingList || AppState.shoppingList.length === 0) {
+        AppState.shoppingList = JSON.parse(JSON.stringify(INITIAL_SEED_DATA.shoppingList || []));
+      }
       if (serverData.shiftPlan !== undefined) AppState.shiftPlan = serverData.shiftPlan;
       if (Array.isArray(serverData.activityLog)) AppState.activityLog = serverData.activityLog;
       saveState();
@@ -4459,6 +5087,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         youths: AppState.youths,
         tasks: AppState.tasks,
         damages: AppState.damages,
+        shoppingList: AppState.shoppingList,
         activityLog: AppState.activityLog,
         shiftPlan: AppState.shiftPlan,
         currentUser: AppState.currentUser,
@@ -4469,7 +5098,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.debug('Init sync notice:', e);
   }
 
-  // Periodic background sync every 4 seconds (syncs damages, tasks & shifts across devices in real time)
+  // Periodic background sync every 4 seconds (syncs damages, tasks, shopping & shifts across devices in real time)
   setInterval(async () => {
     const openModal = document.querySelector('.modal-backdrop:not(.hidden)');
     if (openModal) return;
@@ -4482,6 +5111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       y: AppState.youths,
       t: AppState.tasks,
       d: AppState.damages,
+      sh: AppState.shoppingList,
       s: AppState.shiftPlan
     });
     const remoteSerialized = JSON.stringify({
@@ -4489,6 +5119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       y: remote.youths,
       t: remote.tasks,
       d: remote.damages,
+      sh: remote.shoppingList,
       s: remote.shiftPlan
     });
 
@@ -4497,6 +5128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       AppState.youths = remote.youths || AppState.youths;
       AppState.tasks = remote.tasks || AppState.tasks;
       AppState.damages = remote.damages || AppState.damages;
+      if (Array.isArray(remote.shoppingList)) AppState.shoppingList = remote.shoppingList;
       if (remote.shiftPlan !== undefined) AppState.shiftPlan = remote.shiftPlan;
       if (Array.isArray(remote.activityLog)) AppState.activityLog = remote.activityLog;
 
@@ -4505,6 +5137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         youths: AppState.youths,
         tasks: AppState.tasks,
         damages: AppState.damages,
+        shoppingList: AppState.shoppingList,
         activityLog: AppState.activityLog,
         shiftPlan: AppState.shiftPlan,
         currentUser: AppState.currentUser,
