@@ -1224,13 +1224,16 @@
 
           <!-- Shift Legend Card -->
           <div class="shifts-legend-card">
-            <span class="legend-item"><span class="shift-badge shift-badge-fd">FD</span> Frühdienst (06:30 – 15:30)</span>
-            <span class="legend-item"><span class="shift-badge shift-badge-sd">SD</span> Spätdienst (14:00 – 22:30)</span>
-            <span class="legend-item"><span class="shift-badge shift-badge-nd">ND</span> Nachtdienst (22:00 – 07:00)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-fs">FS</span> Frühschicht (07:00 – 16:00)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-ss">SS</span> Spätschicht (14:00 – 22:00)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-ns1">NS 1</span> Nachtschicht 1 (16:00 – 07:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-ns2">NS 2</span> Nachtschicht 2 (16:00 – 12:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-ns3">NS 3</span> Nachtschicht 3 WE (Sa/So 12:00 – 12:30)</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-ns4">NS 4</span> Nachtschicht 4 (12:00 – 07:30)</span>
             <span class="legend-item"><span class="shift-badge shift-badge-td">TD</span> Tagdienst (08:30 – 17:30)</span>
-            <span class="legend-item"><span class="shift-badge shift-badge-pik">PIK</span> Notfall-Pikett 24h</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-pik">PIK</span> Notfall-Pikett</span>
             <span class="legend-item"><span class="shift-badge shift-badge-sch">SCH</span> Schule</span>
-            <span class="legend-item"><span class="shift-badge shift-badge-frei">FREI</span> Frei / Ruhetag</span>
+            <span class="legend-item"><span class="shift-badge shift-badge-frei">FREI</span> Frei</span>
             <span class="legend-item"><span class="shift-badge shift-badge-urlaub">URLAUB</span> Ferien</span>
           </div>
 
@@ -1950,9 +1953,11 @@
               <label for="shiftPasteInput" class="form-label">Schichtplan als Text oder Tabelle einfügen (z.B. aus E-Mail oder Excel kopiert):</label>
               <textarea id="shiftPasteInput" class="form-control font-mono" rows="8" placeholder="Beispiel:
 Mitarbeiter; Mo; Di; Mi; Do; Fr; Sa; So
-Bella; FD; FD; SCH; SCH; Frei; Frei; Frei
-Kerstin; SD; SD; SD; Frei; Frei; FD; FD
-Oliver; Frei; Frei; FD; FD; SD; SD; Frei
+Bella; FS; FS; SCH; SCH; Frei; Frei; Frei
+Kerstin; SS; SS; SS; Frei; Frei; FS; FS
+Oliver; Frei; Frei; FS; FS; SS; SS; Frei
+Semi; NS 1; NS 1; NS 2; Frei; Frei; Frei; Frei
+Donika; Frei; Frei; Frei; NS 4; NS 4; NS 3; Frei
 ..."></textarea>
             </div>
             <button type="button" id="btnParsePastedText" class="btn btn-outline-cyan btn-sm">Text analysieren & erkennen</button>

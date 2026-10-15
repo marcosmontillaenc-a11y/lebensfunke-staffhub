@@ -2744,9 +2744,12 @@ function saveShoppingItem(formData) {
 // ============================================================================
 
 const SHIFT_TYPES = {
-  FD: { code: 'FD', label: 'Frühdienst', time: '06:30 – 15:30', badgeClass: 'shift-badge-fd' },
-  SD: { code: 'SD', label: 'Spätdienst', time: '14:00 – 22:30', badgeClass: 'shift-badge-sd' },
-  ND: { code: 'ND', label: 'Nachtdienst', time: '22:00 – 07:00', badgeClass: 'shift-badge-nd' },
+  FS: { code: 'FS', label: 'Frühschicht (FS)', time: '07:00 – 16:00', badgeClass: 'shift-badge-fs' },
+  SS: { code: 'SS', label: 'Spätschicht (SS)', time: '14:00 – 22:00', badgeClass: 'shift-badge-ss' },
+  'NS 1': { code: 'NS 1', label: 'Nachtschicht 1 (NS 1)', time: '16:00 – 07:30', badgeClass: 'shift-badge-ns1' },
+  'NS 2': { code: 'NS 2', label: 'Nachtschicht 2 (NS 2)', time: '16:00 – 12:30', badgeClass: 'shift-badge-ns2' },
+  'NS 3': { code: 'NS 3', label: 'Nachtschicht 3 WE (NS 3)', time: '12:00 – 12:30 (Sa/So)', badgeClass: 'shift-badge-ns3' },
+  'NS 4': { code: 'NS 4', label: 'Nachtschicht 4 (NS 4)', time: '12:00 – 07:30', badgeClass: 'shift-badge-ns4' },
   TD: { code: 'TD', label: 'Tagdienst', time: '08:30 – 17:30', badgeClass: 'shift-badge-td' },
   PIK: { code: 'PIK', label: 'Notfall-Pikett 24h', time: '24h Bereitschaft', badgeClass: 'shift-badge-pik' },
   SCH: { code: 'SCH', label: 'Schule & Bildung', time: '08:00 – 16:30', badgeClass: 'shift-badge-sch' },
@@ -2754,6 +2757,15 @@ const SHIFT_TYPES = {
   URLAUB: { code: 'URLAUB', label: 'Ferien', time: 'Urlaub', badgeClass: 'shift-badge-urlaub' },
   KRANK: { code: 'KRANK', label: 'Krank / Unfall', time: 'Abwesend', badgeClass: 'shift-badge-frei' }
 };
+
+// Aliases for seamless code/key resolution
+SHIFT_TYPES.NS1 = SHIFT_TYPES['NS 1'];
+SHIFT_TYPES.NS2 = SHIFT_TYPES['NS 2'];
+SHIFT_TYPES.NS3 = SHIFT_TYPES['NS 3'];
+SHIFT_TYPES.NS4 = SHIFT_TYPES['NS 4'];
+SHIFT_TYPES.FD = SHIFT_TYPES.FS;
+SHIFT_TYPES.SD = SHIFT_TYPES.SS;
+SHIFT_TYPES.ND = SHIFT_TYPES['NS 1'];
 
 function getTodayIsoDate() {
   const d = new Date();
@@ -2873,14 +2885,83 @@ function normalizeShiftCode(rawVal) {
   if (NON_SHIFT_WORDS.has(s) || s.includes('LEITUNG') || s.includes('BETREUUNG') || s.includes('PERSONAL')) {
     return null;
   }
-  if (/^\d{1,3}(\.\d+)?%?$/.test(s) && !s.includes(':') && !s.includes('.')) {
+  if (/^\d{1,3}(\.\d+)?%?$/.test(s) && !s.includes(':') && !s.includes('.') && !s.includes('-')) {
     return null;
   }
 
-  // Standard Shift Codes & Sub-Shifts (e.g. F1, S2, ND1)
-  if (s === 'FD' || s === 'F' || s === 'F1' || s === 'F2' || s === 'FD1' || s === 'FD2') return SHIFT_TYPES.FD;
-  if (s === 'SD' || s === 'S' || s === 'S1' || s === 'S2' || s === 'SD1' || s === 'SD2') return SHIFT_TYPES.SD;
-  if (s === 'ND' || s === 'N' || s === 'N1' || s === 'N2' || s === 'ND1' || s === 'ND2' || s === 'NW') return SHIFT_TYPES.ND;
+  // 1. Direct Explicit Code Match (priority 1)
+  // NS 4 (12:00 – 07:30)
+  if (s === 'NS 4' || s === 'NS4' || s === 'N4' || s === 'ND4' || s === 'NS-4' || s === 'NS.4' || /\bNS\s*4\b/i.test(s) || /\bN4\b/i.test(s)) {
+    return SHIFT_TYPES['NS 4'];
+  }
+  // NS 3 (Sa/So 12:00 – 12:30)
+  if (s === 'NS 3' || s === 'NS3' || s === 'N3' || s === 'ND3' || s === 'NS-3' || s === 'NS.3' || /\bNS\s*3\b/i.test(s) || /\bN3\b/i.test(s)) {
+    return SHIFT_TYPES['NS 3'];
+  }
+  // NS 2 (16:00 – 12:30)
+  if (s === 'NS 2' || s === 'NS2' || s === 'N2' || s === 'ND2' || s === 'NS-2' || s === 'NS.2' || /\bNS\s*2\b/i.test(s) || /\bN2\b/i.test(s)) {
+    return SHIFT_TYPES['NS 2'];
+  }
+  // NS 1 (16:00 – 07:30)
+  if (s === 'NS 1' || s === 'NS1' || s === 'N1' || s === 'ND1' || s === 'NS-1' || s === 'NS.1' || /\bNS\s*1\b/i.test(s) || /\bN1\b/i.test(s)) {
+    return SHIFT_TYPES['NS 1'];
+  }
+
+  // FS / Frühschicht (07:00 – 16:00)
+  if (s === 'FS' || s === 'FD' || s === 'F' || s === 'F1' || s === 'F2' || s === 'FS1' || s === 'FS2' || s === 'FD1' || s === 'FD2') {
+    return SHIFT_TYPES.FS;
+  }
+  // SS / Spätschicht (14:00 – 22:00)
+  if (s === 'SS' || s === 'SD' || s === 'S' || s === 'S1' || s === 'S2' || s === 'SS1' || s === 'SS2' || s === 'SD1' || s === 'SD2') {
+    return SHIFT_TYPES.SS;
+  }
+
+  // 2. Institution Time Ranges & Text Formats
+  // NS 1: 16:00 – 07:30 (16 - 07.30)
+  if ((s.includes('16') && (s.includes('7.30') || s.includes('07.30') || s.includes('7:30') || s.includes('07:30'))) ||
+      /(?:16[:.]00|16)\s*(?:-|–|bis|uhr bis|to)\s*(?:0?7[:.]30)/i.test(s)) {
+    return SHIFT_TYPES['NS 1'];
+  }
+
+  // NS 2: 16:00 – 12:30 (16-12.30)
+  if ((s.includes('16') && (s.includes('12.30') || s.includes('12:30'))) ||
+      /(?:16[:.]00|16)\s*(?:-|–|bis|uhr bis|to)\s*(?:12[:.]30)/i.test(s)) {
+    return SHIFT_TYPES['NS 2'];
+  }
+
+  // NS 4: 12:00 – 07:30 (von 12 Uhr bis 07.30 Uhr)
+  if ((s.includes('12') && (s.includes('7.30') || s.includes('07.30') || s.includes('7:30') || s.includes('07:30'))) ||
+      /(?:12[:.]00|12)\s*(?:-|–|bis|uhr bis|to)\s*(?:0?7[:.]30)/i.test(s) ||
+      /(?:von\s*12.*bis.*0?7\.?30)/i.test(s)) {
+    return SHIFT_TYPES['NS 4'];
+  }
+
+  // NS 3: Sa/So 12:00 – 12:30 (SA/SO 12-12.30)
+  if (!s.includes('16') &&
+      (((s.includes('12.30') || s.includes('12:30')) && (s.includes('12') || s.includes('SA') || s.includes('SO') || s.includes('WE'))) ||
+       /(?:12[:.]00|12)\s*(?:-|–|bis|uhr bis|to)\s*(?:12[:.]30)/i.test(s) ||
+       /(?:sa\/?so|we).*12/i.test(s))) {
+    return SHIFT_TYPES['NS 3'];
+  }
+
+  // FS: 07:00 – 16:00 (7 - 16)
+  if (/(?:0?7[:.]00|0?7)\s*(?:-|–|bis|uhr bis|to)\s*(?:16[:.]00|16\b)/i.test(s) ||
+      ((s.includes('7') || s.includes('07')) && s.includes('16') && !s.includes('30') && !s.includes('12'))) {
+    return SHIFT_TYPES.FS;
+  }
+
+  // SS: 14:00 – 22:00 (14:00-22)
+  if (/(?:14[:.]00|14)\s*(?:-|–|bis|uhr bis|to)\s*(?:22[:.]00|22\b)/i.test(s) ||
+      (s.includes('14') && s.includes('22'))) {
+    return SHIFT_TYPES.SS;
+  }
+
+  // General NS / ND / N fallback (defaults to NS 1)
+  if (s === 'NS' || s === 'ND' || s === 'N' || s === 'NW') {
+    return SHIFT_TYPES['NS 1'];
+  }
+
+  // 3. Other Staff & Shift Types
   if (s === 'TD' || s === 'T' || s === 'T1' || s === 'T2' || s === 'TD1' || s === 'TD2' || s === 'ZD') return SHIFT_TYPES.TD;
   if (s === 'PIK' || s === 'P' || s === 'P1' || s === 'P2' || s === 'PIKETT' || s.includes('BEREIT') || s === '24H') return SHIFT_TYPES.PIK;
   if (s === 'SCH' || s === 'SCHULE' || s.includes('SCHUL') || s === 'WB' || s.includes('KURS')) return SHIFT_TYPES.SCH;
@@ -2889,21 +2970,22 @@ function normalizeShiftCode(rawVal) {
   if (s === 'KOMP' || s === 'KO' || s === 'WE' || s === 'WOCHENENDE' || s === 'KOMPENSATION') return SHIFT_TYPES.FREI;
 
   // Words matching
-  if (s.includes('FRÜH') || s.includes('FRUEH') || s.includes('MORGEN')) return SHIFT_TYPES.FD;
-  if (s.includes('SPÄT') || s.includes('SPAET') || s.includes('ABEND')) return SHIFT_TYPES.SD;
-  if (s.includes('NACHT')) return SHIFT_TYPES.ND;
+  if (s.includes('FRÜH') || s.includes('FRUEH') || s.includes('MORGEN')) return SHIFT_TYPES.FS;
+  if (s.includes('SPÄT') || s.includes('SPAET') || s.includes('ABEND')) return SHIFT_TYPES.SS;
+  if (s.includes('NACHT')) return SHIFT_TYPES['NS 1'];
   if (s.includes('TAG') || s.includes('BÜRO') || s.includes('BUERO')) return SHIFT_TYPES.TD;
   if (s.includes('URLAUB') || s.includes('FERIEN')) return SHIFT_TYPES.URLAUB;
   if (s.includes('KRANK')) return SHIFT_TYPES.KRANK;
 
-  // Time ranges: e.g. '06:30 - 15:30', '14:00-22:30', '22:00 - 07:00', '08:30-17:00'
+  // Generic time ranges fallback: e.g. '07:00 - 16:00', '14:00 - 22:00'
   const timeMatch = s.match(/(\d{1,2})[:.](\d{2})/);
   if (timeMatch) {
     const hour = parseInt(timeMatch[1], 10);
-    if (hour >= 5 && hour <= 8) return SHIFT_TYPES.FD;
-    if (hour >= 12 && hour <= 15) return SHIFT_TYPES.SD;
-    if (hour >= 19 && hour <= 23) return SHIFT_TYPES.ND;
-    if (hour >= 8 && hour <= 11) return SHIFT_TYPES.TD;
+    if (hour >= 5 && hour <= 9) return SHIFT_TYPES.FS;
+    if (hour >= 13 && hour <= 15) return SHIFT_TYPES.SS;
+    if (hour === 12) return SHIFT_TYPES['NS 4'];
+    if (hour >= 16 && hour <= 23) return SHIFT_TYPES['NS 1'];
+    if (hour >= 10 && hour <= 11) return SHIFT_TYPES.TD;
   }
 
   // Short unknown code fallback (e.g. custom shift 'BD', 'MD')
@@ -3314,17 +3396,17 @@ function downloadShiftPlanTemplate() {
   const header = ['Mitarbeitende', 'Funktion', 'Team', ...weekDays.map(d => `${d.weekday} (${d.label})`)];
   
   const sampleShifts = [
-    ['Bella', 'Schulpersonal & Admin', 'Schule & Bildung', 'FD', 'FD', 'SCH', 'SCH', 'Frei', 'Frei', 'Frei'],
+    ['Bella', 'Schulpersonal & Admin', 'Schule & Bildung', 'FS', 'FS', 'SCH', 'SCH', 'Frei', 'Frei', 'Frei'],
     ['Cigdem', 'Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'TD', 'Frei', 'Frei'],
-    ['Serdar', 'Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'Pikett', 'Frei', 'Frei'],
+    ['Serdar', 'Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'PIK', 'Frei', 'Frei'],
     ['Kimete', 'SV / Heimleitung', 'Heimleitung', 'TD', 'TD', 'TD', 'TD', 'TD', 'Frei', 'Frei'],
-    ['Sandra', 'Teamleitung', 'Teamleitung', 'FD', 'FD', 'FD', 'FD', 'Frei', 'Frei', 'Frei'],
-    ['Kerstin', 'Betreuungspersonal', 'Betreuung', 'SD', 'SD', 'SD', 'Frei', 'Frei', 'FD', 'FD'],
-    ['Oliver', 'Betreuungspersonal', 'Betreuung', 'Frei', 'Frei', 'FD', 'FD', 'SD', 'SD', 'Frei'],
-    ['Samia', 'Betreuungspersonal', 'Betreuung', 'SD', 'SD', 'Frei', 'Frei', 'FD', 'FD', 'Frei'],
-    ['Laura', 'Betreuungspersonal', 'Betreuung', 'FD', 'FD', 'SD', 'SD', 'Frei', 'Frei', 'Pikett'],
-    ['Semi', 'Praktikant', 'Praktikum', 'ND', 'ND', 'ND', 'Frei', 'Frei', 'Frei', 'Frei'],
-    ['Donika', 'Praktikantin', 'Praktikum', 'Frei', 'Frei', 'Frei', 'ND', 'ND', 'ND', 'Frei'],
+    ['Sandra', 'Teamleitung', 'Teamleitung', 'FS', 'FS', 'FS', 'FS', 'Frei', 'Frei', 'Frei'],
+    ['Kerstin', 'Betreuungspersonal', 'Betreuung', 'SS', 'SS', 'SS', 'Frei', 'Frei', 'FS', 'FS'],
+    ['Oliver', 'Betreuungspersonal', 'Betreuung', 'Frei', 'Frei', 'FS', 'FS', 'SS', 'SS', 'Frei'],
+    ['Samia', 'Betreuungspersonal', 'Betreuung', 'SS', 'SS', 'Frei', 'Frei', 'FS', 'FS', 'Frei'],
+    ['Laura', 'Betreuungspersonal', 'Betreuung', 'FS', 'FS', 'SS', 'SS', 'Frei', 'Frei', 'PIK'],
+    ['Semi', 'Praktikant', 'Praktikum', 'NS 1', 'NS 1', 'NS 2', 'Frei', 'Frei', 'Frei', 'Frei'],
+    ['Donika', 'Praktikantin', 'Praktikum', 'Frei', 'Frei', 'Frei', 'NS 4', 'NS 4', 'NS 3', 'Frei'],
     ['Steffi', 'Schulpersonal', 'Schule & Bildung', 'SCH', 'SCH', 'SCH', 'SCH', 'Frei', 'Frei', 'Frei']
   ];
 
@@ -3584,13 +3666,20 @@ function quickEditShiftCell(empId, date) {
   const emp = AppState.employees.find(e => e.id === empId);
   if (!emp) return;
 
-  const shiftOptions = ['FD', 'SD', 'ND', 'TD', 'PIK', 'SCH', 'FREI', 'URLAUB'];
+  const shiftOptions = ['FS', 'SS', 'NS 1', 'NS 2', 'NS 3', 'NS 4', 'TD', 'PIK', 'SCH', 'FREI', 'URLAUB'];
   const current = (plan.entries || []).find(e => e.employeeId === empId && e.date === date);
   const curType = current ? current.shiftType : 'FREI';
   
-  const nextIdx = (shiftOptions.indexOf(curType) + 1) % shiftOptions.length;
+  let curIdx = shiftOptions.indexOf(curType);
+  if (curIdx === -1) {
+    const resolved = SHIFT_TYPES[curType];
+    if (resolved) curIdx = shiftOptions.indexOf(resolved.code);
+  }
+  if (curIdx === -1) curIdx = shiftOptions.indexOf('FREI');
+
+  const nextIdx = (curIdx + 1) % shiftOptions.length;
   const nextType = shiftOptions[nextIdx];
-  const nextMeta = SHIFT_TYPES[nextType];
+  const nextMeta = SHIFT_TYPES[nextType] || SHIFT_TYPES.FREI;
 
   if (current) {
     current.shiftType = nextMeta.code;

@@ -3538,22 +3538,43 @@ ul {
   user-select: none;
 }
 
+.shift-badge-fs,
 .shift-badge-fd {
-  background: rgba(134, 239, 172, 0.15);
-  color: #86efac;
-  border: 1px solid rgba(134, 239, 172, 0.35);
+  background: rgba(52, 211, 153, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
+.shift-badge-ss,
 .shift-badge-sd {
-  background: rgba(192, 132, 252, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(192, 132, 252, 0.35);
+  background: rgba(251, 146, 60, 0.16);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.35);
 }
 
+.shift-badge-ns1,
 .shift-badge-nd {
-  background: rgba(96, 165, 250, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(99, 102, 241, 0.16);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.shift-badge-ns2 {
+  background: rgba(14, 165, 233, 0.16);
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+}
+
+.shift-badge-ns3 {
+  background: rgba(168, 85, 247, 0.16);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.shift-badge-ns4 {
+  background: rgba(236, 72, 153, 0.16);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.35);
 }
 
 .shift-badge-td {
